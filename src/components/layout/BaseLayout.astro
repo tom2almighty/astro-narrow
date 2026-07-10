@@ -9,6 +9,7 @@ import SearchModal from '../features/SearchModal.astro';
 import Toc from '../features/Toc.astro';
 import Comments from '../features/Comments.astro';
 import Analytics from '../features/Analytics.astro';
+import GalleryLightbox from '../features/GalleryLightbox.astro';
 
 interface Heading {
   depth: number;
@@ -74,6 +75,7 @@ const themeInit = `
     {toc && headings.length > 0 && <Toc headings={headings} position={toc === true ? 'center' : toc} />}
     {siteConfig.ui.dock.enabled && <Dock locale={locale} />}
     <SearchModal locale={locale} />
+    <GalleryLightbox locale={locale} />
     <Analytics />
     <script>
       import '../../scripts/theme-controls.ts';

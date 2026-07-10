@@ -27,20 +27,8 @@ let restoreOverflow = '';
 
 function createLightbox() {
   if (root) return root;
-  root = document.createElement('div');
-  root.className =
-    'fixed inset-0 z-[80] grid place-items-center bg-black/80 p-4 opacity-0 invisible transition-[opacity,visibility] duration-200 [&.is-open]:visible [&.is-open]:opacity-100';
-  root.setAttribute('role', 'dialog');
-  root.setAttribute('aria-modal', 'true');
-  root.setAttribute('aria-label', 'Image viewer');
-  root.innerHTML = `
-    <button type="button" data-lb-close aria-label="Close" class="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-2xl leading-none text-white backdrop-blur transition hover:bg-white/20">&times;</button>
-    <button type="button" data-lb-prev aria-label="Previous" class="absolute left-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-2xl leading-none text-white backdrop-blur transition hover:bg-white/20 disabled:opacity-30">&#8249;</button>
-    <img data-lb-image alt="" class="max-h-[85vh] max-w-[92vw] rounded-[var(--radius-panel)] object-contain shadow-2xl" />
-    <button type="button" data-lb-next aria-label="Next" class="absolute right-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-2xl leading-none text-white backdrop-blur transition hover:bg-white/20 disabled:opacity-30">&#8250;</button>
-    <div data-lb-caption class="absolute bottom-4 left-1/2 max-w-[80vw] -translate-x-1/2 rounded-[var(--radius-control)] bg-black/55 px-3 py-1.5 text-center text-sm text-white"></div>
-  `;
-  document.body.appendChild(root);
+  root = document.querySelector<HTMLElement>('[data-lightbox-root]');
+  if (!root) throw new Error('Gallery lightbox root is missing.');
   root.querySelector('[data-lb-close]')?.addEventListener('click', closeLightbox);
   root.querySelector('[data-lb-prev]')?.addEventListener('click', () => showLightbox(currentIndex - 1));
   root.querySelector('[data-lb-next]')?.addEventListener('click', () => showLightbox(currentIndex + 1));
