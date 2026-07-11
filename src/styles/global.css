@@ -481,8 +481,15 @@ a {
   --alert-color: var(--color-caution);
 }
 
-/* Image figures, galleries, and the lightbox are styled with Tailwind utility
-   classes — see rehype-image-groups.mjs and scripts/gallery.ts. */
+/* Image figures and the lightbox are primarily styled with Tailwind utility
+   classes — see rehype-image-groups.mjs and scripts/gallery.ts. SmartGallery
+   2.0 requires itemClassName to contain exactly one class, so item styling
+   lives here instead of being passed as a Tailwind utility list. */
+.markdown-gallery .sg-item {
+  cursor: zoom-in;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+}
 
 /* Table of contents */
 #toc-container[data-position="center"] {

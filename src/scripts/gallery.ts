@@ -1,9 +1,9 @@
-import SmartGallery from 'smart-gallery/dist/smart-gallery.esm.min.js';
+import SmartGallery, { type GalleryItemId, type GalleryItemInput, type GalleryLayout } from 'smart-gallery';
 import { siteConfig } from '../config/site';
 
-type LightboxItem = { src: string; alt: string; caption: string };
-type LayoutItem = { src: string; aspectRatio: number };
-type Layout = 'justified' | 'masonry' | 'grid';
+type LightboxItem = { id: GalleryItemId; src: string; alt: string; caption: string };
+type LayoutItem = GalleryItemInput & { id: GalleryItemId; src: string; aspectRatio: number };
+type Layout = GalleryLayout;
 
 const cfg = siteConfig.gallery as Record<string, any>;
 const LAYOUTS: Layout[] = ['justified', 'masonry', 'grid'];
@@ -67,7 +67,9 @@ function showLightbox(index: number) {
   }
 }
 
-function openLightbox(galleryId: string, index: number) {
+function openLightbox(galleryId: string, itemId: GalleryItemId) {
+  const index = galleries.get(galleryId)?.findIndex((item) => item.id === itemId) ?? -1;
+  if (index < 0) return;
   currentGallery = galleryId;
   const lightbox = createLightbox();
   showLightbox(index);
@@ -114,11 +116,10 @@ function createInstance(host: HTMLElement, layout: Layout, items: LayoutItem[], 
     columns: cfg.columns ?? 'auto',
     virtualize: false,
     placeholderColor: 'var(--color-muted)',
-    itemClassName: 'sg-item cursor-zoom-in overflow-hidden rounded-[var(--radius-panel)]',
-    onItemClick: ({ index }: { index: number }) => openLightbox(galleryId, index)
+    itemClassName: 'sg-item',
+    onItemClick: ({ id }) => openLightbox(galleryId, id)
   });
-  instance.addItems(items);
-  instance.render();
+  instance.setItems(items);
   return instance;
 }
 
@@ -138,14 +139,26 @@ async function setupGallery(gallery: HTMLElement, groupIndex: number) {
   if (sources.length === 0) return;
 
   const galleryId = `gallery-${groupIndex}`;
-  galleries.set(galleryId, sources.map(({ src, alt, caption }) => ({ src, alt, caption })));
+  const galleryItems = sources.map(({ src, alt, caption }, index) => ({
+    id: `${galleryId}-${index}`,
+    src,
+    alt,
+    caption
+  }));
+  galleries.set(galleryId, galleryItems);
 
   const items: LayoutItem[] = await Promise.all(
-    sources.map(async (source) => ({ src: source.src, aspectRatio: await aspectRatioOf(source.img, source.src) }))
+    sources.map(async (source, index) => ({
+      id: galleryItems[index].id,
+      src: source.src,
+      alt: source.alt,
+      title: source.caption || undefined,
+      aspectRatio: await aspectRatioOf(source.img, source.src)
+    }))
   );
 
   let layout: Layout = DEFAULT_LAYOUT;
-  let instance: { destroy(): void } | null = null;
+  let instance: SmartGallery | null = null;
   const host = document.createElement('div');
 
   const switcher = document.createElement('div');
@@ -162,9 +175,7 @@ async function setupGallery(gallery: HTMLElement, groupIndex: number) {
     button.addEventListener('click', () => {
       if (value === layout || !instance) return;
       layout = value;
-      instance.destroy();
-      host.innerHTML = '';
-      instance = createInstance(host, layout, items, galleryId);
+      instance.setOptions({ layout });
       buttons.forEach((entry) => entry.setAttribute('aria-pressed', String(entry.dataset.layout === layout)));
     });
     button.dataset.layout = value;
@@ -175,7 +186,7 @@ async function setupGallery(gallery: HTMLElement, groupIndex: number) {
   gallery.innerHTML = '';
   gallery.appendChild(switcher);
   gallery.appendChild(host);
-  // Host must be in the DOM before render() so SmartGallery measures its width.
+  // Host 必须先进入 DOM，SmartGallery 才能在 setItems() 时获取正确宽度。
   instance = createInstance(host, layout, items, galleryId);
 }
 
@@ -187,13 +198,15 @@ document.querySelectorAll<HTMLElement>('.prose > .image-figure').forEach((figure
   const img = figure.querySelector<HTMLImageElement>('img');
   if (!img) return;
   const galleryId = `single-${index}`;
+  const itemId = `${galleryId}-0`;
   galleries.set(galleryId, [
     {
+      id: itemId,
       src: img.currentSrc || img.src,
       alt: img.alt || '',
       caption: figure.querySelector('.image-caption')?.textContent?.trim() || ''
     }
   ]);
   const trigger = figure.querySelector<HTMLElement>('.image-container') || figure;
-  trigger.addEventListener('click', () => openLightbox(galleryId, 0));
+  trigger.addEventListener('click', () => openLightbox(galleryId, itemId));
 });

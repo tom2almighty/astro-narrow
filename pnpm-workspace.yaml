@@ -2,4 +2,4 @@ allowBuilds:
   esbuild: true
   sharp: true
 minimumReleaseAgeExclude:
-  - smart-gallery@1.0.0
+  - smart-gallery@2.0.1

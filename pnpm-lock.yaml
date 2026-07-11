@@ -48,8 +48,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       smart-gallery:
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^2.0.1
+        version: 2.0.1
       tailwindcss:
         specifier: ^4.3.1
         version: 4.3.1
@@ -2174,8 +2174,9 @@ packages:
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
-  smart-gallery@1.0.0:
-    resolution: {integrity: sha512-BCOSfbrElCAoNideqKy9X9+KYN/So63gToY8gcJfltDuv++hiWV+TZLwNK5qZ4bEhd8fh9PZ/H2ZJSXNMNsfIg==}
+  smart-gallery@2.0.1:
+    resolution: {integrity: sha512-U15w5zpT0Wd6QhEPIsDtZQEqvixDcdSaJHEq/9xDZ3v/5XtDzmIdJ149gqL1dJXIh8nSQeZ3Oc/lCD3IMRHVTQ==}
+    engines: {node: '>=20'}
 
   smol-toml@1.7.0:
     resolution: {integrity: sha512-aqVvWoyO21L23mb+drl4RmMXbf6N7FdHjAhTRA9ZBL7apWBgfWC16KjrASI+1p9GAroljyMHj6fK67i0UiTNvQ==}
@@ -4984,7 +4985,7 @@ snapshots:
 
   sisteransi@1.0.5: {}
 
-  smart-gallery@1.0.0: {}
+  smart-gallery@2.0.1: {}
 
   smol-toml@1.7.0: {}
 
