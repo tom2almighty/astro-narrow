@@ -15,6 +15,14 @@ function syncCodeTheme() {
   });
 }
 
+function notifyColorModeChange() {
+  document.dispatchEvent(
+    new CustomEvent('astro-narrow:color-mode-change', {
+      detail: { mode: currentColorMode() }
+    })
+  );
+}
+
 function closePanel(panel: HTMLElement | null) {
   panel?.classList.add('hidden');
 }
@@ -66,6 +74,7 @@ document.addEventListener('click', (event) => {
     root.classList.toggle('dark');
     localStorage.setItem('color-mode', root.classList.contains('dark') ? 'dark' : 'light');
     syncCodeTheme();
+    notifyColorModeChange();
     return;
   }
 
