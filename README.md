@@ -1,19 +1,19 @@
 # Astro Narrow
 
-A content-focused Astro theme: one narrow reading column, a seeded color-mix palette, and fluid Utopia typography.
+A content-focused Astro theme: one narrow reading column, a sitewide palette readers can tune themselves, and type that scales smoothly with the screen. Migrated from Hugo Narrow, keeping its overall design ideas.
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [Hugo Narrow](https://github.com/tom2almighty/hugo-narrow)
 
 ## Features
 
-- Seeded color system: shared paper & ink plus one `--seed`, every token mixed with `color-mix()` — dark mode for free
-- Visitor appearance controls in the Dock: seed presets + custom hue picker, frosted-glass blur, film grain
-- Fluid typography and spacing built on Utopia scales
-- Folder-based series: `index.md` is the parent, sibling files are chapters, the TOC becomes a series spine
-- Paginated post list, tag archives, search, RSS, sitemap
-- Multiple languages (`en` default, `zh-cn` example)
-- Math, Mermaid, tabs, alerts, image galleries
-- Frontmatter-only project cards with auto-icon external links
+- One-pick recoloring: choose a theme color and the whole site follows — shades, borders, links, dark mode included
+- Readers tune the look themselves: theme color, color scheme, frosted glass, film grain, and page width, remembered across visits
+- Type and spacing scale smoothly with the screen, comfortable from phones to large monitors
+- Drop a few posts into one folder to make a series: chapters order themselves, the table of contents becomes a series spine, and previous/next links stay inside the series
+- Paginated post list, tag archives, full-text search, RSS, and sitemap out of the box
+- Multiple languages (English default, Simplified Chinese example included)
+- Markdown extras: math, Mermaid diagrams, tabs, alerts, image galleries with a lightbox
+- Project cards from a few lines of frontmatter, with automatic icons for common sites
 
 ## Quick Start
 
@@ -30,7 +30,7 @@ pnpm astro check
 | ----------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
 | `src/config/site.ts`    | Site, author, and global features   | `contentWidth`, `nav`, `footerNav`, `home`, `list.pageSize`, `comments`, `analytics` |
 | `src/config/i18n.ts`    | Locales and display names           | `defaultLocale`, `locales`, `localeMeta`                                             |
-| `src/config/theme.ts`   | Default theme, presets, seed recipe | `defaultTheme`, `seedPresets`, `seedColor`                                           |
+| `src/config/theme.ts`   | Default theme, schemes, presets     | `defaultTheme`, `defaultScheme`, `schemes`, `seedPresets`, `seedColor`               |
 | `src/content.config.ts` | Available frontmatter fields        | Update when adding or changing content fields                                        |
 | `src/styles/tokens.css` | Design tokens                       | Paper/ink axioms, theme seeds, mix recipe, Utopia type/space scales, `--radius`      |
 
@@ -119,9 +119,14 @@ links:
 
 ## Theming
 
-The palette is mixed from three colors: shared `--paper` and `--ink` (which flip with the `.dark` class) plus one `--seed` per theme. Every semantic token (`canvas`, `border`, `fg`, `accent`, …) derives from them with `color-mix(in oklab, …)` — mixing toward `--fg` for contrast, toward `--canvas` to recede — so hover states glow with the theme color and nothing falls out of tune. Visitors pick the seed in the Dock: preset swatches (defined in `src/config/theme.ts`) plus a custom hue slider, applied live and persisted; lightness/chroma are fixed at contrast-validated values, so every hue is safe, and the first swatch restores the monochrome default. The same panel dials frosted-glass blur and a film-grain overlay. The shipped default is the monochrome `ink` theme; a site can hard-code its own preset with one `[data-theme] { --seed: … }` line. Cards sit on the canvas behind hairline borders; floating layers share the navbar's translucent-canvas treatment.
+Changing colors requires no color theory:
 
-Typography and spacing come from vendored [Utopia](https://utopia.fyi) `clamp()` scales (`--step-*`, `--space-*`), exposed as Tailwind utilities (`text-step-1`, `p-fl-m`, …). Article styles live in `src/styles/prose.css` — the theme does not use `@tailwindcss/typography`.
+- **Readers**: the Dock's display settings offer preset swatches and a custom hue slider — pick a color and the whole site recolors instantly and remembers the choice. The scheme buttons next to them (Plain / Tinted / Vivid / Soft) decide how boldly the color is used: whether the paper takes a subtle wash, how strong hovers and accents appear.
+- **Site owners**: the default theme, default scheme, and swatch presets live in `src/config/theme.ts`. For a brand color, add one line to `src/styles/tokens.css`: `[data-theme='brand'] { --seed: … }`. For your own scheme, copy the template block at the end of tokens.css, adjust a few percentages, and register it in `theme.ts` — the Dock button appears automatically.
+
+The principle in one sentence: the entire palette is derived from paper, ink, and a single theme color through one shared `color-mix()` recipe, so every color, every scheme, and both light and dark mode stay in tune automatically.
+
+Typography and spacing come from vendored [Utopia](https://utopia.fyi) `clamp()` scales (`--step-*`, `--space-*`), exposed as Tailwind utilities (`text-step-1`, `p-fl-m`, …). Article styles live in `src/styles/prose.css`.
 
 ## Markdown Tabs
 

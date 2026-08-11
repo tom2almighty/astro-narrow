@@ -147,13 +147,15 @@ body::after {
 /*
  * Floating layers (navbar, dock, dropdowns, capsule, search) share one
  * treatment: translucent canvas over a blur — the same paper as the page.
+ * One strength value (--glass) drives both the blur radius and how much
+ * shows through; an opaque shell would render any blur invisible.
  */
 .glass,
 .nav-shell,
 .dock-shell {
   border-color: var(--border);
-  background: color-mix(in oklch, var(--canvas), transparent 12%);
-  backdrop-filter: blur(var(--glass-blur));
+  background: color-mix(in oklch, var(--canvas), transparent clamp(0%, calc(var(--glass) * 1.5%), 40%));
+  backdrop-filter: blur(calc(var(--glass) * 1px));
 }
 
 @supports not (backdrop-filter: blur(4px)) {

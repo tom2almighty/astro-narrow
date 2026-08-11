@@ -14,7 +14,8 @@
  *
  * So hover glows with 9% of the theme color, borders are ink diluted in
  * paper, links are the seed steadied with ink — one recipe, always in tune.
- * Adding a theme is a single `--seed` line.
+ * Adding a theme is a single `--seed` line. A scheme (`data-scheme`) re-tunes
+ * a few percentages of that same recipe — never a second palette.
  */
 
 :root {
@@ -25,8 +26,10 @@
   --radius: 0.5rem;
   --radius-xs: 0.25rem;
 
-  /* Appearance controls (Dock display settings). */
-  --glass-blur: 16px;
+  /* Appearance controls (Dock display settings). --glass is a unitless
+     frost strength (0–24): it drives both the backdrop blur radius and the
+     shell translucency in global.css, so 0 means a fully solid shell. */
+  --glass: 16;
   --grain: 0;
 
   /*
@@ -60,13 +63,25 @@
   --accent: var(--seed);
   --accent-contrast: white;
 
+  /*
+   * Scheme knobs: the only recipe percentages a color scheme may vary.
+   * Defaults reproduce the shipped look. Contrast-critical mixes (border,
+   * fg, fg-muted) are deliberately not exposed — every scheme inherits the
+   * validated contrast. Lowering --scheme-tint is safe: the raw seed
+   * (oklch 52% 0.11) already passes contrast on every hue.
+   */
+  --scheme-wash: 2%;         /* seed wash in the canvas */
+  --scheme-hover: 9%;        /* tint share in hover surfaces */
+  --scheme-tint: 28%;        /* fg steadying the seed (lower = rawer color) */
+  --scheme-accent-veil: 88%; /* transparency of accent washes */
+
   /* Mode-adaptive accent: the seed steadied with ink for text-safe uses. */
-  --tint: color-mix(in oklab, var(--seed), var(--fg) 28%);
+  --tint: color-mix(in oklab, var(--seed), var(--fg) var(--scheme-tint));
 
   /* Surfaces */
-  --canvas: color-mix(in oklab, var(--paper), var(--seed) 2%);
+  --canvas: color-mix(in oklab, var(--paper), var(--seed) var(--scheme-wash));
   --muted: color-mix(in oklab, var(--canvas), var(--fg) 6%);
-  --hover: color-mix(in oklab, var(--canvas), var(--tint) 9%);
+  --hover: color-mix(in oklab, var(--canvas), var(--tint) var(--scheme-hover));
 
   /* Lines: ink diluted in paper. */
   --border: color-mix(in oklab, var(--canvas), var(--fg) 15%);
@@ -78,8 +93,8 @@
 
   /* Accent washes (selection, marks, active TOC, reading progress). */
   --accent-text: var(--tint);
-  --accent-bg: color-mix(in oklab, var(--tint), transparent 88%);
-  --accent-bg-hover: color-mix(in oklab, var(--tint), transparent 80%);
+  --accent-bg: color-mix(in oklab, var(--tint), transparent var(--scheme-accent-veil));
+  --accent-bg-hover: color-mix(in oklab, var(--tint), transparent calc(var(--scheme-accent-veil) - 8%));
 
   /* Alerts: five fixed seeds run through the same recipe. */
   --note-seed: oklch(60% 0.14 245);
@@ -119,7 +134,39 @@
   --accent-text: var(--fg);
 }
 
+/*
+ * Color schemes: named overrides of the scheme knobs above. `plain` is the
+ * default and has no block. Visitors switch schemes from the Dock; register
+ * ids and labels in `src/config/theme.ts` (`schemes`) to surface a button.
+ */
+[data-scheme='tinted'] {
+  /* The paper takes the seed: a gently colored page. */
+  --scheme-wash: 5%;
+  --scheme-hover: 12%;
+}
 
+[data-scheme='vivid'] {
+  /* Rawer seed and stronger washes: links and accents step forward. */
+  --scheme-tint: 14%;
+  --scheme-hover: 12%;
+  --scheme-accent-veil: 82%;
+}
 
+[data-scheme='soft'] {
+  /* Quieter hovers and washes, steadier links: color almost whispers. */
+  --scheme-wash: 1%;
+  --scheme-hover: 5%;
+  --scheme-tint: 34%;
+  --scheme-accent-veil: 92%;
+}
 
-
+/*
+ * Custom scheme template — copy, rename, and register in theme.ts:
+ *
+ * [data-scheme='mine'] {
+ *   --scheme-wash: 3%;
+ *   --scheme-hover: 10%;
+ *   --scheme-tint: 20%;
+ *   --scheme-accent-veil: 85%;
+ * }
+ */

@@ -2,7 +2,7 @@
 import '../../styles/global.css';
 import { localeMeta, type Locale } from '../../config/i18n';
 import { siteConfig } from '../../config/site';
-import { defaultTheme } from '../../config/theme';
+import { defaultScheme, defaultTheme } from '../../config/theme';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Dock from '../ui/Dock.astro';
@@ -56,9 +56,11 @@ const themeInit = `
       root.dataset.theme = '${defaultTheme}';
     }
     const glass = localStorage.getItem('glass-blur');
-    if (glass !== null) root.style.setProperty('--glass-blur', glass + 'px');
+    if (glass !== null) root.style.setProperty('--glass', glass);
     const grain = localStorage.getItem('grain');
     if (grain !== null) root.style.setProperty('--grain', String(Number(grain) / 100));
+    const scheme = localStorage.getItem('scheme');
+    if (scheme !== null) root.dataset.scheme = scheme;
     const mode = localStorage.getItem('color-mode');
     const contentWidth = localStorage.getItem('content-width');
     if (contentWidth && /^\\d+(?:\\.\\d+)?rem$/.test(contentWidth)) {
@@ -75,7 +77,7 @@ const themeInit = `
 ---
 
 <!doctype html>
-<html lang={htmlLang} data-theme={defaultTheme} style={`--layout-content-width: ${siteConfig.contentWidth}`}>
+<html lang={htmlLang} data-theme={defaultTheme} data-scheme={defaultScheme} style={`--layout-content-width: ${siteConfig.contentWidth}`}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />

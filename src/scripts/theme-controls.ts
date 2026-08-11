@@ -1,4 +1,4 @@
-import { defaultTheme, seedColor } from '../config/theme';
+import { defaultScheme, defaultTheme, seedColor } from '../config/theme';
 
 type ColorScheme = 'light' | 'auto' | 'dark';
 
@@ -12,6 +12,7 @@ const codeThemes = {
 const SEED_KEY = 'seed-hue';
 const GLASS_KEY = 'glass-blur';
 const GRAIN_KEY = 'grain';
+const SCHEME_KEY = 'scheme';
 const DEFAULT_HUE = 275;
 const DEFAULT_GLASS = 16;
 
@@ -53,6 +54,10 @@ function syncDisplayState() {
     const value = button.dataset.seedPreset ?? '';
     const active = hue === null ? value === '' : value === hue;
     button.setAttribute('aria-pressed', String(active));
+  });
+  const activeScheme = localStorage.getItem(SCHEME_KEY) ?? defaultScheme;
+  document.querySelectorAll<HTMLElement>('[data-scheme-preset]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.schemePreset === activeScheme));
   });
 }
 
@@ -120,7 +125,7 @@ document.addEventListener('input', (event) => {
   const glassInput = target.closest<HTMLInputElement>('[data-glass-blur]');
   if (glassInput) {
     localStorage.setItem(GLASS_KEY, glassInput.value);
-    root.style.setProperty('--glass-blur', `${glassInput.value}px`);
+    root.style.setProperty('--glass', glassInput.value);
     return;
   }
 
@@ -182,6 +187,16 @@ document.addEventListener('click', (event) => {
       localStorage.setItem(SEED_KEY, value);
       applySeedHue(Number(value));
     }
+    syncDisplayState();
+    return;
+  }
+
+  const schemePresetButton = target.closest<HTMLElement>('[data-scheme-preset]');
+  if (schemePresetButton?.dataset.schemePreset) {
+    const id = schemePresetButton.dataset.schemePreset;
+    if (id === defaultScheme) localStorage.removeItem(SCHEME_KEY);
+    else localStorage.setItem(SCHEME_KEY, id);
+    root.dataset.scheme = id;
     syncDisplayState();
     return;
   }

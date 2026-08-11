@@ -1,19 +1,19 @@
 # Astro Narrow
 
-一个内容优先的 Astro 主题:一条窄幅阅读栏、种子式 color-mix 配色、Utopia 流式排版。
+一个内容优先的 Astro 主题:单栏窄版式,读者可以自己调的整站配色,随屏幕平滑缩放的字号与间距。从 Hugo Narrow 迁移,保留整体设计理念。
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [Hugo Narrow](https://github.com/tom2almighty/hugo-narrow)
 
 ## 功能
 
-- 种子配色系统:共享纸与墨 + 一枚 `--seed`,全部 token 用 `color-mix()` 调出——深色模式自动成立
-- Dock 内的访客外观控制:种子预设色板 + 自定义色相条、毛玻璃模糊、胶片颗粒
-- 基于 Utopia 刻度的流式字号与间距
-- 文件夹式系列:`index.md` 为父文,同目录文件为章节,目录升级为系列书脊
-- 文章列表分页、标签归档、搜索、RSS、sitemap
-- 多语言(默认 `en`,示例 `zh-cn`)
-- 数学公式、Mermaid、Tabs、提示块、图库
-- 纯 frontmatter 项目卡片,外链自动匹配图标
+- 一键换色:挑一个主题色,整站深浅、边框、链接全部自动配好,深色模式也不用单独调
+- 读者可以自己调外观:主题色、配色方案、磨砂玻璃、背景颗粒、页面宽度,刷新后依然保留
+- 字号和间距随屏幕宽度平滑缩放,从手机到大屏都舒服
+- 把几篇文章放进同一个文件夹就是一个系列:章节自动排序,目录变成系列书脊,上一章/下一章自动衔接
+- 文章分页、标签归档、全文搜索、RSS、sitemap 开箱即用
+- 多语言(默认英文,内置简体中文示例)
+- Markdown 增强:数学公式、Mermaid 图表、选项卡、提示块、图库灯箱
+- 项目页只需填几行 frontmatter 就能生成链接卡片,常见站点自动配图标
 
 ## 快速开始
 
@@ -30,7 +30,7 @@ pnpm astro check
 | ----------------------- | ------------------------ | ------------------------------------------------------------------------------------ |
 | `src/config/site.ts`    | 站点、作者与全局功能     | `contentWidth`、`nav`、`footerNav`、`home`、`list.pageSize`、`comments`、`analytics` |
 | `src/config/i18n.ts`    | 语言与显示名称           | `defaultLocale`、`locales`、`localeMeta`                                             |
-| `src/config/theme.ts`   | 默认主题、预设与取色配方 | `defaultTheme`、`seedPresets`、`seedColor`                                           |
+| `src/config/theme.ts`   | 默认主题、配色方案与预设 | `defaultTheme`、`defaultScheme`、`schemes`、`seedPresets`、`seedColor`               |
 | `src/content.config.ts` | 可用的 frontmatter 字段  | 新增或修改内容字段时更新                                                             |
 | `src/styles/tokens.css` | 设计令牌                 | 纸/墨公理色、主题种子、混色配方、Utopia 字号/间距刻度、`--radius`                    |
 
@@ -84,9 +84,9 @@ tags: [Astro, Markdown]
 /archives/?tag=Astro
 ```
 
-## 系列(Subpost)
+## 子文章(Subpost)
 
-系列就是 posts 集合里的一个文件夹。文件夹的 `index.md` 是父文,同目录的每个 Markdown 文件是章节:
+文章集是 posts 集合里的一个文件夹。文件夹的 `index.md` 是父文,同目录的每个 Markdown 文件是章节:
 
 ```text
 src/content/posts/zh-cn/astro-guide/
@@ -119,9 +119,14 @@ links:
 
 ## 主题配色
 
-调色板由三个颜色混出:共享的 `--paper` 与 `--ink`(随 `.dark` 类翻转)+ 每套主题一枚 `--seed`。所有语义令牌(`canvas`、`border`、`fg`、`accent` 等)用 `color-mix(in oklab, …)` 从三者推导——朝 `--fg` 混获得对比度,朝 `--canvas` 混融入页面——悬浮泛主题色,任何颜色都不会失调。种子由访客在 Dock 中挑选:预设色板(定义于 `src/config/theme.ts`)加自定义色相滑条,实时生效并持久化;亮度/彩度固定在经全色相对比度验证的安全值,任何色相都可读,第一枚色板恢复单色默认。同一面板还能调节毛玻璃模糊与胶片颗粒。内置默认为单色 `ink` 主题;站点也可用一行 `[data-theme] { --seed: … }` 硬编码自己的预设。卡片直接坐在纸面上靠发丝边框分隔;浮层与导航栏共用半透明纸面处理。
+换颜色不需要懂配色:
 
-字号与间距来自内置的 [Utopia](https://utopia.fyi) `clamp()` 刻度(`--step-*`、`--space-*`),并暴露为 Tailwind 工具类(`text-step-1`、`p-fl-m` 等)。正文样式位于 `src/styles/prose.css`——主题不使用 `@tailwindcss/typography`。
+- **读者侧**:Dock 的显示设置里有预设色板和自定义色相条,挑一个颜色,整站立刻换装并记住选择。旁边的「配色方案」按钮(默认/着色/鲜明/柔和)决定颜色用得多重——纸面要不要带一点主题色、悬浮和强调有多鲜艳。
+- **站长侧**:默认主题、默认方案和预设色板都在 `src/config/theme.ts`。想用品牌色,在 `src/styles/tokens.css` 加一行 `[data-theme='brand'] { --seed: … }`;想做自己的方案,复制 tokens.css 末尾的模板块、改几个百分比,再到 `theme.ts` 注册,Dock 里就会自动出现按钮。
+
+原理只有一句话:整个调色板由「纸、墨 + 一枚主题色」按同一套 `color-mix()` 配方推导,所以任何颜色、任何方案、明暗两种模式都自动协调,不会失调。
+
+字号与间距来自内置的 [Utopia](https://utopia.fyi) `clamp()` 刻度(`--step-*`、`--space-*`),并暴露为 Tailwind 工具类(`text-step-1`、`p-fl-m` 等)。正文样式位于 `src/styles/prose.css`。
 
 ## Markdown Tabs
 

@@ -2,7 +2,7 @@
 import { Icon } from 'astro-icon/components';
 import { getLocalePath, locales, localeMeta, switchLocalePath, type Locale } from '../../config/i18n';
 import { siteConfig } from '../../config/site';
-import { seedColor, seedPresets } from '../../config/theme';
+import { defaultScheme, schemes, seedColor, seedPresets } from '../../config/theme';
 import { useTranslations } from '../../i18n/utils';
 
 interface Props {
@@ -21,6 +21,7 @@ const labels = {
   grain: t('dock.grain'),
   home: t('dock.home'),
   language: t('nav.language'),
+  scheme: t('dock.scheme'),
   theme: t('nav.theme'),
   themeCustom: t('dock.theme.custom'),
   colorMode: t('nav.colorMode'),
@@ -110,6 +111,21 @@ const maximumContentWidth = Math.ceil(defaultContentWidth + 24);
             aria-label={labels.themeCustom}
             title={labels.themeCustom}
           />
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs font-medium text-fg-muted">{labels.scheme}</span>
+          <div class="grid grid-cols-4 gap-1 rounded-base bg-muted p-1" role="group" aria-label={labels.scheme}>
+            {schemes.map((scheme) => (
+              <button
+                type="button"
+                data-scheme-preset={scheme.id}
+                aria-pressed={scheme.id === defaultScheme ? 'true' : 'false'}
+                class="flex cursor-pointer items-center justify-center rounded-xs px-2 py-1.5 text-xs font-medium text-fg-muted transition-colors hover:bg-hover hover:text-fg aria-pressed:bg-accent aria-pressed:text-accent-contrast aria-pressed:hover:bg-accent aria-pressed:hover:text-accent-contrast focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                {scheme.name[locale]}
+              </button>
+            ))}
+          </div>
         </div>
         <div class="flex items-center gap-3">
           <label for="glass-blur" class="w-20 shrink-0 text-xs font-medium text-fg-muted">{labels.glass}</label>
