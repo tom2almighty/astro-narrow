@@ -2,25 +2,20 @@
 import { Icon } from 'astro-icon/components';
 import type { CollectionEntry } from 'astro:content';
 import type { Locale } from '../../config/i18n';
-import type { ContentTypeId } from '../../config/content';
+import { getLocalePath } from '../../config/i18n';
 import { siteConfig } from '../../config/site';
-import EntryList from '../content/EntryList.astro';
+import { useTranslations } from '../../i18n/utils';
+import PostList from '../content/PostList.astro';
 import ViewAll from '../ui/ViewAll.astro';
-
-interface HomeSection {
-  id: ContentTypeId;
-  title: string;
-  href: string;
-  entries: Array<CollectionEntry<any>>;
-}
 
 interface Props {
   locale: Locale;
-  sections: HomeSection[];
+  recentPosts: Array<CollectionEntry<'posts'>>;
 }
 
-const { locale, sections } = Astro.props;
+const { locale, recentPosts } = Astro.props;
 const { author } = siteConfig;
+const t = useTranslations(locale);
 
 function assetPath(path: string) {
   if (/^(https?:)?\/\//.test(path) || path.startsWith('data:')) return path;
@@ -31,19 +26,19 @@ function assetPath(path: string) {
 const avatarSrc = assetPath(author.avatar);
 ---
 
-<section class="py-8 sm:py-10">
-  <div class="profile-card surface-card px-7 py-5 sm:px-8 sm:py-6">
+<div class="space-y-fl-l">
+  <section class="rounded-base border border-border bg-canvas px-7 py-5 sm:px-8 sm:py-6">
     <div class="flex flex-col items-center gap-6 text-center md:flex-row md:items-start md:text-left">
       <img
         src={avatarSrc}
         alt={author.name}
-        class="h-24 w-24 shrink-0 rounded-full border-4 border-primary/20 object-cover shadow-sm"
+        class="h-24 w-24 shrink-0 rounded-full border border-border object-cover"
       />
 
       <div class="min-w-0 flex-1">
-        <h1 class="text-3xl font-bold tracking-tight">{author.name}</h1>
-        <p class="mt-1.5 text-lg text-muted-foreground">{author.title[locale]}</p>
-        <p class="mt-3 leading-relaxed text-foreground">{author.description[locale]}</p>
+        <h1 class="text-step-3 font-bold tracking-tight">{author.name}</h1>
+        <p class="mt-1.5 text-step-0 text-fg-muted">{author.title[locale]}</p>
+        <p class="mt-3 leading-relaxed text-fg">{author.description[locale]}</p>
 
         {author.social.length > 0 && (
           <div class="mt-5 flex flex-wrap items-center justify-center gap-2.5 md:justify-start">
@@ -52,7 +47,7 @@ const avatarSrc = assetPath(author.avatar);
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-muted px-3 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-primary/10 hover:text-primary"
+                class="inline-flex items-center gap-2 rounded-base bg-muted px-3 py-2 text-step--1 font-medium text-fg-muted transition-colors duration-200 hover:bg-accent-bg hover:text-accent-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
                 title={item.name}
               >
                 <Icon name={item.icon} class="h-4 w-4" />
@@ -63,17 +58,15 @@ const avatarSrc = assetPath(author.avatar);
         )}
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-{sections.map((section) => (
-  section.entries.length > 0 && (
-    <section class="py-8">
-      <div class="mb-3 flex items-end justify-between gap-4">
-        <h2 class="text-2xl font-semibold">{section.title}</h2>
-        <ViewAll href={section.href} locale={locale} />
+  {recentPosts.length > 0 && (
+    <section>
+      <h2 class="mb-3 text-step-2 font-semibold">{t('home.recentPosts')}</h2>
+      <PostList posts={recentPosts} locale={locale} />
+      <div class="mt-6 flex justify-center">
+        <ViewAll href={getLocalePath(locale, '/posts/')} locale={locale} />
       </div>
-      <EntryList entries={section.entries} collection={section.id} locale={locale} />
     </section>
-  )
-))}
+  )}
+</div>

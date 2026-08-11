@@ -14,7 +14,9 @@
 - 包管理器：`pnpm`
 - Node：`>=22.12.0`
 - 框架：Astro 7
-- 样式：Tailwind CSS 4 + `src/styles/global.css` + `src/styles/themes.css`
+- 样式：Tailwind CSS 4 + `src/styles/tokens.css`(纸·墨·种子配色 + Utopia 令牌)+ `src/styles/prose.css`(自写正文排版,不用 @tailwindcss/typography)+ `src/styles/global.css`
+- 配色：纸·墨·种子系统——共享 `--paper`/`--ink`(随 `.dark` 翻转)+ 每主题一枚 `--seed`,全部 token 用 `color-mix(in oklab)` 推导(朝 fg 混=对比度,朝 canvas 混=融入;无 surface——卡片同纸面+边框,浮层用 `.glass`),无 Radix 依赖;外观控制变量 `--glass-blur`(浮层模糊)与 `--grain`(颗粒覆盖层)
+- 排版:Utopia 流式刻度(`--step-*`、`--space-*`),全站统一 `--radius`(盒 8px / 行内芯片 4px),无阴影
 - 图标：`astro-icon`，优先使用 `lucide:*`；品牌图标使用 `simple-icons:*`
 - Markdown：`@astrojs/markdown-remark` + 自定义 remark/rehype 插件
 - 代码块：`astro-expressive-code`
@@ -44,13 +46,12 @@ ASTRO_SITE=https://<user>.github.io ASTRO_BASE=/astro-narrow/ pnpm build
 
 ## 目录约定
 
-- `src/config/site.ts`：站点信息、作者信息、导航、评论、统计、图库、license、全局 UI 开关。
-- `src/config/content.ts`：内容类型定义，包括 path、label、icon、卡片样式、列表布局、首页区块。
+- `src/config/site.ts`：站点信息、作者信息、导航、首页区块(`home`)、分页(`list.pageSize`)、评论、统计、图库、license、全局 UI 开关。
 - `src/config/i18n.ts`：语言、路径生成、语言切换路径。所有内部链接优先使用这里的 helper。
-- `src/config/theme.ts`：主题切换选项。
+- `src/config/theme.ts`：默认主题 id(ink)、预设色板 `seedPresets` 与种子配方 `seedColor`(L52%/C0.11,经全色相对比度验证)。
 - `src/content.config.ts`：Content Collections schema。
-- `src/content/posts/<locale>`：文章内容。
-- `src/content/projects/<locale>`：项目内容。
+- `src/content/posts/<locale>`：文章内容;系列 = 含 `index.md` 的文件夹,同目录其余 md 为章节。
+- `src/content/projects/<locale>`：项目内容,纯 frontmatter,无详情页。
 - `src/content/pages/<locale>`：普通页面内容。
 - `src/pages`：Astro 文件路由，包括默认语言路由和 `[locale]` 本地化路由。
 - `src/components/layout`：页面骨架。
@@ -73,7 +74,9 @@ ASTRO_SITE=https://<user>.github.io ASTRO_BASE=/astro-narrow/ pnpm build
 ## 内容模型
 
 - 内容集合只有 `posts`、`projects`、`pages`。
-- taxonomy 目前只保留 `tags`，不要新增 Hugo 风格 categories/series 兼容，除非明确作为 Astro 原生新功能设计。
+- taxonomy 只有 `tags`,不存在 categories/series 集合,不要重新引入。
+- 系列通过文件夹表达:`posts/<locale>/<dir>/index.md` 是父文,同目录其余 md 是章节(subpost),按 `order` → `date` → 文件名排序;列表/首页排除章节,归档/搜索/RSS 包含章节。
+- projects 是纯 frontmatter 链接卡片:`links` 为 `键: URL` 映射,键名自由,图标按 通用键 → simple-icons → 箭头 回退;不渲染正文、不生成详情路由。
 - front matter 以 `src/content.config.ts` 为准。新增字段必须先更新 schema，再更新组件消费逻辑。
 - 草稿使用 `draft` 字段；公开列表应继续过滤草稿。
 - 多语言内容通过目录和 `lang`/路径约定处理，不要引入 Hugo bundle 规则。
@@ -89,8 +92,10 @@ ASTRO_SITE=https://<user>.github.io ASTRO_BASE=/astro-narrow/ pnpm build
 ## UI 和样式约定
 
 - 保持主题的 compact reading layout：内容优先、布局克制、阅读密度适中。
-- 新 UI 应复用现有 token、CSS 变量和 Tailwind utility，不引入新的重型 UI 框架。
-- 主题颜色和设计 token 放在 `src/styles/themes.css` 或相关 config 中。
+- 语义 token:`canvas/muted/hover/border/border-strong/fg/fg-muted/accent(-contrast/-text/-bg)`,Tailwind 工具类为 `bg-canvas`、`text-fg`、`rounded-base` 等;卡片 = `bg-canvas + border`,交互悬浮 = `hover:bg-hover (+hover:border-border-strong)`,浮层加 `glass`;不要复活 shadcn 旧名或 surface。
+- 圆角只用 `rounded-base`(8px)与 `rounded-xs`(4px,行内芯片),胶囊语义用 `rounded-full`;不加阴影。
+- 字号用 `text-step--1..3`,正文与区块间距优先 `--space-*` 刻度。
+- 配色由访客在 Dock 选择:预设色板(theme.ts 的 seedPresets)+ 自定义色相条(data-theme="custom" + 内联 --seed,localStorage: seed-hue/glass-blur/grain,首枚色板恢复默认);站点硬编码预设 = tokens.css 加一行 `[data-theme] { --seed: … }`。
 - 图标按钮优先使用 `astro-icon` + lucide 图标。
 - 组件应支持浅色/深色主题，并避免写死只适合单一主题的颜色。
 - 响应式布局必须覆盖移动端和桌面端。

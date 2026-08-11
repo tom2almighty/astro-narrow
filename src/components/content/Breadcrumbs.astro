@@ -19,21 +19,21 @@ const ariaLabel = locale === 'zh-cn' ? '面包屑导航' : 'Breadcrumb';
 
 {items.length > 0 && (
   <nav class="mb-5 overflow-x-auto py-1" aria-label={ariaLabel}>
-    <ol class="flex items-center gap-1 whitespace-nowrap text-sm text-muted-foreground">
+    <ol class="flex items-center gap-1 whitespace-nowrap text-sm text-fg-muted">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (
           <li class="flex min-w-0 items-center gap-1">
-            {index > 0 && <Icon name="lucide:chevron-right" class="h-3.5 w-3.5 shrink-0 text-muted-foreground/55" />}
+            {index > 0 && <Icon name="lucide:chevron-right" class="h-3.5 w-3.5 shrink-0 text-fg-muted/55" />}
             {isLast || !item.href ? (
-              <span class="inline-flex min-w-0 items-center gap-1.5 px-1.5 py-1 font-medium text-foreground">
+              <span class="inline-flex min-w-0 items-center gap-1.5 px-1.5 py-1 font-medium text-fg">
                 {item.icon && <Icon name={item.icon} class="h-3.5 w-3.5 shrink-0" />}
                 <span class="max-w-48 truncate sm:max-w-80">{item.label}</span>
               </span>
             ) : (
               <a
                 href={item.href}
-                class="inline-flex min-h-8 items-center gap-1.5 rounded-[var(--radius-control)] px-2 py-1 text-muted-foreground transition-colors duration-200 hover:bg-accent hover:text-accent-foreground"
+                class="inline-flex min-h-8 items-center gap-1.5 rounded-base px-2 py-1 text-fg-muted transition-colors duration-200 hover:bg-hover hover:text-fg"
               >
                 {item.icon && <Icon name={item.icon} class="h-3.5 w-3.5 shrink-0" />}
                 <span>{item.label}</span>

@@ -3,6 +3,8 @@ import { getLocaleFromId, getLocalePath, stripLocaleFromId, type Locale } from '
 
 export type ContentType = 'posts' | 'projects' | 'pages';
 
+type Post = CollectionEntry<'posts'>;
+
 export function entryLocale(entry: CollectionEntry<ContentType>) {
   return entry.data.lang || getLocaleFromId(entry.id);
 }
@@ -12,7 +14,8 @@ export function entrySlug(entry: CollectionEntry<ContentType>) {
 }
 
 export function entryDate(entry: CollectionEntry<ContentType>) {
-  return entry.data.pubDate || entry.data.updatedDate || new Date(0);
+  const data = entry.data as { date?: Date; updatedDate?: Date };
+  return data.date || data.updatedDate || new Date(0);
 }
 
 export function isPublished(entry: CollectionEntry<ContentType>) {
@@ -26,7 +29,7 @@ export async function getLocalizedEntries<T extends ContentType>(collection: T, 
     .sort((a, b) => entryDate(b as CollectionEntry<ContentType>).getTime() - entryDate(a as CollectionEntry<ContentType>).getTime());
 }
 
-export function localizedEntryPath(collection: ContentType, entry: CollectionEntry<ContentType>) {
+export function localizedEntryPath(collection: 'posts' | 'pages', entry: CollectionEntry<'posts'> | CollectionEntry<'pages'>) {
   const slug = entrySlug(entry);
   const locale = entryLocale(entry);
   const base = collection === 'pages' ? '' : `/${collection}`;
@@ -43,9 +46,9 @@ export function formatDate(date: Date | undefined, locale: Locale) {
   }).format(date);
 }
 
-/** 生成指向当前语言 Archives 筛选状态的链接。 */
-export function archiveFilterPath(locale: Locale, filter: 'category' | 'tag', value: string) {
-  const query = new URLSearchParams({ [filter]: value });
+/** 生成指向当前语言 Archives 标签筛选状态的链接。 */
+export function tagFilterPath(locale: Locale, tag: string) {
+  const query = new URLSearchParams({ tag });
   return `${getLocalePath(locale, '/archives/')}?${query.toString()}`;
 }
 
@@ -54,28 +57,22 @@ export type ArchiveTerm = {
   count: number;
 };
 
-/** 收集当前 locale 已发布 posts 的归档筛选词条。 */
-export function collectArchiveTerms(
-  posts: Array<CollectionEntry<'posts'>>,
-  field: 'tags' | 'categories',
-  locale: Locale
-): ArchiveTerm[] {
+/** 收集当前 locale 已发布 posts 的标签词条,按出现次数排序。 */
+export function collectTagTerms(posts: Post[], locale: Locale): ArchiveTerm[] {
   const counts = new Map<string, number>();
 
   for (const post of posts) {
-    const terms = new Set((post.data[field] || []).map((term) => term.trim()).filter(Boolean));
+    const terms = new Set((post.data.tags || []).map((term) => term.trim()).filter(Boolean));
     for (const term of terms) counts.set(term, (counts.get(term) || 0) + 1);
   }
 
   const collator = new Intl.Collator(locale === 'zh-cn' ? 'zh-CN' : locale);
   return [...counts.entries()]
     .map(([value, count]) => ({ value, count }))
-    .sort((a, b) => field === 'tags'
-      ? b.count - a.count || collator.compare(a.value, b.value)
-      : collator.compare(a.value, b.value));
+    .sort((a, b) => b.count - a.count || collator.compare(a.value, b.value));
 }
 
-export function adjacentEntries<T extends ContentType>(entries: Array<CollectionEntry<T>>, current: CollectionEntry<T>) {
+export function adjacentEntries(entries: Post[], current: Post): { previous?: Post; next?: Post } {
   const index = entries.findIndex((entry) => entry.id === current.id);
   return {
     previous: index >= 0 ? entries[index + 1] : undefined,
@@ -83,7 +80,7 @@ export function adjacentEntries<T extends ContentType>(entries: Array<Collection
   };
 }
 
-export function relatedPosts(posts: Array<CollectionEntry<'posts'>>, current: CollectionEntry<'posts'>, limit = 3) {
+export function relatedPosts(posts: Post[], current: Post, limit = 3) {
   const currentTerms = new Set(current.data.tags || []);
 
   return posts
@@ -94,7 +91,145 @@ export function relatedPosts(posts: Array<CollectionEntry<'posts'>>, current: Co
       return { entry, score };
     })
     .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || entryDate(b.entry as any).getTime() - entryDate(a.entry as any).getTime())
+    .sort((a, b) => b.score - a.score || entryDate(b.entry).getTime() - entryDate(a.entry).getTime())
     .slice(0, limit)
     .map((item) => item.entry);
+}
+
+/* ---------------------------------------------------------------------------
+ * Series / subposts
+ *
+ * A series is a folder inside the posts collection whose `index.md` is the
+ * parent post; every sibling Markdown file is a subpost (chapter):
+ *
+ *   posts/en/astro-guide/index.md   → /posts/astro-guide/
+ *   posts/en/astro-guide/setup.md   → /posts/astro-guide/setup/
+ *
+ * Folders that only contain `index.md` (plus assets) stay ordinary posts.
+ * ------------------------------------------------------------------------- */
+
+export type PostSeries = {
+  parent: Post;
+  /** Ordered chapters (order → date → id), excluding the parent. */
+  subposts: Post[];
+  /** Reading sequence: parent first, then chapters. */
+  sequence: Post[];
+};
+
+export type SeriesContext = {
+  series: PostSeries;
+  /** 0 for the parent, 1..N for subposts. */
+  position: number;
+  previous?: Post;
+  next?: Post;
+};
+
+function parentIdOf(entry: Post) {
+  const segments = entry.id.split('/');
+  if (segments.length < 2) return undefined;
+  return segments.slice(0, -1).join('/');
+}
+
+/** The parent of a series is the folder's index file. */
+function isIndexFile(entry: Post) {
+  return /\/index\.(md|mdx)$/.test(entry.filePath ?? '');
+}
+
+/**
+ * Index entries keyed by both id schemes: the glob loader strips a trailing
+ * `/index` from ids, but older ids may keep it — register both.
+ */
+function collectParents(posts: Post[]) {
+  const parents = new Map<string, Post>();
+  for (const entry of posts) {
+    if (!isIndexFile(entry)) continue;
+    parents.set(entry.id, entry);
+    parents.set(entry.id.replace(/\/index$/, ''), entry);
+  }
+  return parents;
+}
+
+function findParent(entry: Post, parents: Map<string, Post>) {
+  const parentId = parentIdOf(entry);
+  if (!parentId) return undefined;
+  const parent = parents.get(parentId);
+  if (!parent || parent.id === entry.id) return undefined;
+  return parent;
+}
+
+function subpostOrder(a: Post, b: Post) {
+  const orderA = a.data.order ?? Number.POSITIVE_INFINITY;
+  const orderB = b.data.order ?? Number.POSITIVE_INFINITY;
+  return orderA - orderB
+    || entryDate(a).getTime() - entryDate(b).getTime()
+    || a.id.localeCompare(b.id);
+}
+
+/** 依据文件夹结构把 posts 分组为系列。 */
+export function collectSeries(posts: Post[]): PostSeries[] {
+  const parents = collectParents(posts);
+  const grouped = new Map<string, Post[]>();
+
+  for (const entry of posts) {
+    const parent = findParent(entry, parents);
+    if (!parent) continue;
+    const group = grouped.get(parent.id) || [];
+    group.push(entry);
+    grouped.set(parent.id, group);
+  }
+
+  return [...grouped.entries()].map(([parentId, subposts]) => {
+    const parent = parents.get(parentId)!;
+    const ordered = [...subposts].sort(subpostOrder);
+    return { parent, subposts: ordered, sequence: [parent, ...ordered] };
+  });
+}
+
+export function isSubpost(entry: Post, posts: Post[]) {
+  return Boolean(findParent(entry, collectParents(posts)));
+}
+
+/** 列表与首页使用:排除 subpost,只保留父文与独立文章。 */
+export function excludeSubposts(posts: Post[]) {
+  const parents = collectParents(posts);
+  return posts.filter((entry) => !findParent(entry, parents));
+}
+
+export function getSeriesContext(entry: Post, posts: Post[]): SeriesContext | undefined {
+  for (const series of collectSeries(posts)) {
+    const position = series.sequence.findIndex((candidate) => candidate.id === entry.id);
+    if (position < 0) continue;
+    return {
+      series,
+      position,
+      previous: position > 0 ? series.sequence[position - 1] : undefined,
+      next: series.sequence[position + 1]
+    };
+  }
+  return undefined;
+}
+
+/* ---------------------------------------------------------------------------
+ * Pagination
+ * ------------------------------------------------------------------------- */
+
+export type PostListPage = {
+  entries: Post[];
+  current: number;
+  total: number;
+};
+
+export function paginateEntries(posts: Post[], pageSize: number): Post[][] {
+  if (posts.length === 0) return [[]];
+  const pages: Post[][] = [];
+  for (let index = 0; index < posts.length; index += pageSize) {
+    pages.push(posts.slice(index, index + pageSize));
+  }
+  return pages;
+}
+
+export function postListPagePath(locale: Locale, page: number) {
+  return page <= 1
+    ? getLocalePath(locale, '/posts/')
+    : getLocalePath(locale, `/posts/page/${page}/`);
 }

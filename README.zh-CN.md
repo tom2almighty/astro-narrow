@@ -1,17 +1,19 @@
 # Astro Narrow
 
-一个多配色的 Astro 主题，由 Hugo Narrow 迁移，保留整体 Narrow 设计。
+一个内容优先的 Astro 主题:一条窄幅阅读栏、种子式 color-mix 配色、Utopia 流式排版。
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [Hugo Narrow](https://github.com/tom2almighty/hugo-narrow)
 
 ## 功能
 
-- 多配色
-- 目录
-- 搜索
-- 多语言
-- 公式和图表
-- 多种布局图库
+- 种子配色系统:共享纸与墨 + 一枚 `--seed`,全部 token 用 `color-mix()` 调出——深色模式自动成立
+- Dock 内的访客外观控制:种子预设色板 + 自定义色相条、毛玻璃模糊、胶片颗粒
+- 基于 Utopia 刻度的流式字号与间距
+- 文件夹式系列:`index.md` 为父文,同目录文件为章节,目录升级为系列书脊
+- 文章列表分页、标签归档、搜索、RSS、sitemap
+- 多语言(默认 `en`,示例 `zh-cn`)
+- 数学公式、Mermaid、Tabs、提示块、图库
+- 纯 frontmatter 项目卡片,外链自动匹配图标
 
 ## 快速开始
 
@@ -19,117 +21,126 @@
 pnpm install
 pnpm dev
 pnpm build
+pnpm astro check
 ```
 
 ## 主要配置文件
 
-| 文件                    | 用途                             | 常用参数                                                                       |
-| ----------------------- | -------------------------------- | ------------------------------------------------------------------------------ |
-| `src/config/site.ts`    | 站点、作者和全局功能             | `contentWidth`, `nav`, `footerNav`, `comments`, `analytics`, `gallery`, `post` |
-| `src/config/content.ts` | Posts、Projects 的列表和首页展示 | `cardStyle`, `listLayout`, `gridColumns`, `home.enabled`, `home.limit`         |
-| `src/config/i18n.ts`    | 语言和显示名称                   | `defaultLocale`, `locales`, `localeMeta`                                       |
-| `src/config/theme.ts`   | Dock 中的可选配色                | `themes`                                                                       |
-| `src/content.config.ts` | 可用 frontmatter 字段            | 修改或增加内容字段时更新                                                       |
+| 文件                    | 用途                     | 常用配置                                                                             |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------ |
+| `src/config/site.ts`    | 站点、作者与全局功能     | `contentWidth`、`nav`、`footerNav`、`home`、`list.pageSize`、`comments`、`analytics` |
+| `src/config/i18n.ts`    | 语言与显示名称           | `defaultLocale`、`locales`、`localeMeta`                                             |
+| `src/config/theme.ts`   | 默认主题、预设与取色配方 | `defaultTheme`、`seedPresets`、`seedColor`                                           |
+| `src/content.config.ts` | 可用的 frontmatter 字段  | 新增或修改内容字段时更新                                                             |
+| `src/styles/tokens.css` | 设计令牌                 | 纸/墨公理色、主题种子、混色配方、Utopia 字号/间距刻度、`--radius`                    |
 
-`cardStyle` 可使用 `article`、`showcase`、`compact`；`listLayout` 可使用 `stack`、`grid`；`gridColumns` 可设置为 `1`、`2`、`3`。
+新增语言时,同时更新 `astro.config.mjs` 的 `i18n.locales` 和 `src/content.config.ts` 中允许的 `lang` 值。
 
-新增语言时，还需要同步更新 `astro.config.mjs` 的 `i18n.locales` 和 `src/content.config.ts` 的 `lang` 可选值。
+## 导航
 
-导航可使用 `posts`、`series`、`projects`、`archives`：
+`nav` 与 `footerNav` 接受注册路由 id(`posts`、`projects`、`archives`)和内联链接。内联链接在两处都同时支持内部路径与外部 URL;外部 URL 会在新标签页打开并带箭头标记。
 
 ```ts
-nav: ["posts", "series", "projects", "archives"],
+nav: [
+  "posts",
+  "projects",
+  "archives",
+  { label: "GitHub", href: "https://github.com/", icon: "simple-icons:github" },
+  { label: { en: "About", "zh-cn": "关于" }, href: "/about/" },
+],
 footerNav: ["archives"],
 ```
 
-自定义导航项需要提供多语言名称、链接和 Lucide 图标：
+`label` 可以是字符串或按语言的对象;`icon` 可选。
+
+## 首页区块与分页
 
 ```ts
-{
-  label: { en: "Docs", "zh-cn": "文档" },
-  href: "https://example.com/docs/",
-  icon: "lucide:book-open",
-}
+home: {
+  recentPosts: { enabled: true, limit: 3 },
+},
+list: {
+  pageSize: 10,
+},
 ```
+
+`/posts/` 按 `pageSize` 分页,第二页起位于 `/posts/page/<n>/`。
 
 ## 内容分类
 
-Posts 使用 `categories` 和 `tags`，两者都是字符串数组：
+文章只使用 `tags`:
 
 ```yaml
 ---
-title: 使用 Astro Narrow 编写文章
-pubDate: 2026-07-10
-categories: [指南]
+title: 用 Astro Narrow 写作
+date: 2026-07-10
 tags: [Astro, Markdown]
 ---
 ```
 
-- `categories`：文章所属分类，适合填写“指南”“随笔”等较宽泛的内容类型。
-- `tags`：文章涉及的主题或技术，可填写多个。
-- Projects 只使用 `tags`。
-- Pages 不使用 `categories` 或 `tags`。
-
-Archives 支持通过 URL 直接打开筛选结果：
+归档页会从已发布文章中自动发现标签。筛选 URL 可以直接分享:
 
 ```text
-/archives/?category=Guides
 /archives/?tag=Astro
-/archives/?category=Guides&tag=Astro
 ```
 
-## 有序系列
+## 系列(Subpost)
 
-在 `src/content/series/<locale>/` 中创建 Markdown 文件，文件名会成为 Series 的 URL slug。Markdown 正文可用于编写系列导读。
+系列就是 posts 集合里的一个文件夹。文件夹的 `index.md` 是父文,同目录的每个 Markdown 文件是章节:
+
+```text
+src/content/posts/zh-cn/astro-guide/
+├── index.md        → /zh-cn/posts/astro-guide/
+├── setup.md        → /zh-cn/posts/astro-guide/setup/
+└── deploy.md       → /zh-cn/posts/astro-guide/deploy/
+```
+
+- 章节按 frontmatter 的 `order` 数字排序,回落到 `date`,再回落到文件名。
+- 文章列表和首页只显示父文;归档、搜索和 RSS 包含每个章节。
+- 父文页面渲染自动生成的章节列表;上一篇/下一篇在系列内部闭环。
+- 目录会变成系列书脊:列出全部章节,展开当前章,胶囊显示位置。
+- 只包含 `index.md` 和资源文件的文件夹仍是普通文章。
+
+## 项目
+
+项目是纯 frontmatter 的链接卡片,以三列网格展示——没有详情页。`links` 把自由命名的键映射到 URL;通用键(`website`、`docs`、`demo` 等)与 Simple Icons 中存在的品牌键会自动匹配图标,其余回退为箭头。
 
 ```yaml
 ---
-title: Astro Narrow 实战指南
-description: 从内容编写到生产部署。
-draft: false
-chapters:
-  - zh-cn/authoring-content-collections
-  - zh-cn/configure-series
-  - zh-cn/deploy-github-pages
+title: "Astro Narrow"
+description: "一个 Astro-native 内容主题。"
+tags: [Astro]
+order: 1
+links:
+  github: https://github.com/example/repo
+  website: https://example.com
 ---
-按照章节顺序阅读，可以从内容编写逐步完成站点部署。
 ```
 
-| 参数          | 必填 | 用途                               |
-| ------------- | ---- | ---------------------------------- |
-| `title`       | 是   | Series 标题                        |
-| `description` | 否   | 索引页和页面摘要                   |
-| `chapters`    | 是   | 按阅读顺序填写的 Post ID，至少两篇 |
-| `draft`       | 否   | 设为 `true` 时不生成公开 Series    |
-| `lang`        | 否   | 通常由 `<locale>` 目录自动确定     |
+## 主题配色
 
-Post ID 是 `src/content/posts/` 后的相对路径，不包含扩展名。Series 与所有章节必须使用同一语言，章节必须已经发布，并且一篇文章只能加入一个公开 Series。调整 `chapters` 数组顺序即可重新排序，不会改变文章 URL。
+调色板由三个颜色混出:共享的 `--paper` 与 `--ink`(随 `.dark` 类翻转)+ 每套主题一枚 `--seed`。所有语义令牌(`canvas`、`border`、`fg`、`accent` 等)用 `color-mix(in oklab, …)` 从三者推导——朝 `--fg` 混获得对比度,朝 `--canvas` 混融入页面——悬浮泛主题色,任何颜色都不会失调。种子由访客在 Dock 中挑选:预设色板(定义于 `src/config/theme.ts`)加自定义色相滑条,实时生效并持久化;亮度/彩度固定在经全色相对比度验证的安全值,任何色相都可读,第一枚色板恢复单色默认。同一面板还能调节毛玻璃模糊与胶片颗粒。内置默认为单色 `ink` 主题;站点也可用一行 `[data-theme] { --seed: … }` 硬编码自己的预设。卡片直接坐在纸面上靠发丝边框分隔;浮层与导航栏共用半透明纸面处理。
 
-`/series/` 展示全部 Series，`/series/<slug>/` 展示导读和章节列表。不需要顶部入口时，从 `siteConfig.nav` 中移除 `"series"` 即可。
+字号与间距来自内置的 [Utopia](https://utopia.fyi) `clamp()` 刻度(`--step-*`、`--space-*`),并暴露为 Tailwind 工具类(`text-step-1`、`p-fl-m` 等)。正文样式位于 `src/styles/prose.css`——主题不使用 `@tailwindcss/typography`。
 
 ## Markdown Tabs
 
-Tabs 使用 `remark-directive` 语法。外层容器使用四个冒号，因为内部还嵌套了 directive。
+Tabs 使用 `remark-directive` 语法。外层容器使用四个冒号,因为它包含嵌套指令。
 
 ````md
 ::::tabs
-:::tab{title="site.ts"}
+:::tab{title="pnpm"}
 
-```ts
-export const siteConfig = {
-  // 默认页面宽度，访客可在 Dock 的显示设置中调整。
-  contentWidth: "56rem",
-};
+```sh
+pnpm install
 ```
 
 :::
 
-:::tab{title="content.ts"}
+:::tab{title="npm"}
 
-```ts
-export const contentTypes = {
-  posts: { listLayout: "stack" },
-};
+```sh
+npm install
 ```
 
 :::
@@ -138,10 +149,10 @@ export const contentTypes = {
 
 ## GitHub Pages
 
-示例 workflow 位于 `.github/workflows/deploy.yml`。第一次部署前，先进入仓库 **Settings > Pages**，将 **Build and deployment > Source** 设置为 **GitHub Actions**。如果没有开启这个设置，`actions/deploy-pages` 可能会报 `HttpError: Not Found`。
+示例工作流位于 `.github/workflows/deploy.yml`。首次部署前,在仓库 **Settings > Pages** 中把 **Build and deployment > Source** 设置为 **GitHub Actions**。缺少该设置时,`actions/deploy-pages` 可能报 `HttpError: Not Found`。
 
-workflow 会自动为用户页面和项目页面设置 `ASTRO_SITE` 与 `ASTRO_BASE`。
+工作流会为用户页和项目页自动设置 `ASTRO_SITE` 和 `ASTRO_BASE`。
 
 ## 许可证
 
-本项目基于 [GNU General Public License Version 3](LICENSE) 开源。
+本项目基于 [GNU General Public License Version 3](LICENSE) 发布。

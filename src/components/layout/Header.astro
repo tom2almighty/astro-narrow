@@ -15,16 +15,17 @@ const currentPath = Astro.url.pathname;
 const t = useTranslations(locale);
 const headerClass = siteConfig.ui.navbar.sticky ? 'sticky top-5' : 'relative';
 
-function isActive(href: string) {
-  if (href === '/') return currentPath === href;
-  return currentPath === href || currentPath.startsWith(href);
+function isActive(item: { href: string; external: boolean }) {
+  if (item.external) return false;
+  if (item.href === '/') return currentPath === item.href;
+  return currentPath === item.href || currentPath.startsWith(item.href);
 }
 ---
 
 <header class:list={[headerClass, 'z-30 mt-5 mb-6']}>
-  <div class="nav-shell flex min-h-16 items-center justify-between gap-3 border px-4 shadow-[var(--surface-shadow)]">
+  <div class="nav-shell flex min-h-16 items-center justify-between gap-3 border px-4">
     <a href={getLocalePath(locale, '/')} class="flex min-w-0 items-center gap-2 font-semibold">
-      <span class="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground">
+      <span class="grid h-8 w-8 shrink-0 place-items-center rounded-base bg-accent text-accent-contrast">
         {siteConfig.name.slice(0, 1)}
       </span>
       <span class="truncate">{siteConfig.name}</span>
@@ -34,33 +35,42 @@ function isActive(href: string) {
       {navigation.map((item) => (
         <a
           class:list={[
-            'nav-item inline-flex items-center gap-1.5 rounded-[var(--radius-control)] px-3 py-2 text-sm transition-colors duration-200',
-            isActive(item.href)
-              ? 'bg-accent text-accent-foreground'
-              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+            'nav-item inline-flex items-center gap-1.5 rounded-base px-3 py-2 text-step--1 transition-colors duration-200',
+            isActive(item)
+              ? 'bg-hover text-fg'
+              : 'text-fg-muted hover:bg-hover hover:text-fg'
           ]}
           href={item.href}
+          target={item.external ? '_blank' : undefined}
+          rel={item.external ? 'noopener noreferrer' : undefined}
         >
-          <Icon name={item.icon} class="h-4 w-4" />
+          {item.icon && <Icon name={item.icon} class="h-4 w-4" />}
           {item.label}
+          {item.external && <Icon name="lucide:arrow-up-right" class="h-3 w-3 text-fg-muted" />}
         </a>
       ))}
     </nav>
 
     <div class="flex shrink-0 items-center gap-1">
-      <button type="button" data-search-open class="grid h-9 w-9 place-items-center rounded-[var(--radius-control)] text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground" aria-label={t('nav.search')} title={t('nav.search')}>
+      <button type="button" data-search-open class="grid h-9 w-9 place-items-center rounded-base text-fg-muted transition-colors hover:bg-hover hover:text-fg" aria-label={t('nav.search')} title={t('nav.search')}>
         <Icon name="lucide:search" class="h-4 w-4" />
       </button>
-      <button type="button" data-mobile-menu aria-expanded="false" class="grid h-9 w-9 place-items-center rounded-[var(--radius-control)] transition-colors hover:bg-accent md:hidden" aria-label={t('nav.menu')}>
+      <button type="button" data-mobile-menu aria-expanded="false" class="grid h-9 w-9 place-items-center rounded-base transition-colors hover:bg-hover md:hidden" aria-label={t('nav.menu')}>
         <Icon name="lucide:menu" class="h-4 w-4" />
       </button>
     </div>
   </div>
-  <nav data-mobile-panel class="mt-2 hidden rounded-[var(--radius-card)] border border-border bg-popover p-2 shadow-[var(--surface-shadow-strong)] md:hidden" aria-label="Mobile primary">
+  <nav data-mobile-panel class="mt-2 hidden rounded-base border border-border glass p-2 md:hidden" aria-label="Mobile primary">
     {navigation.map((item) => (
-      <a class:list={['flex items-center gap-2 rounded-[var(--radius-control)] px-3 py-2 text-sm', isActive(item.href) ? 'bg-accent text-accent-foreground ring-1 ring-primary/35' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground']} href={item.href}>
-        <Icon name={item.icon} class="h-4 w-4" />
+      <a
+        class:list={['flex items-center gap-2 rounded-base px-3 py-2 text-step--1', isActive(item) ? 'bg-hover text-fg' : 'text-fg-muted hover:bg-hover hover:text-fg']}
+        href={item.href}
+        target={item.external ? '_blank' : undefined}
+        rel={item.external ? 'noopener noreferrer' : undefined}
+      >
+        {item.icon && <Icon name={item.icon} class="h-4 w-4" />}
         {item.label}
+        {item.external && <Icon name="lucide:arrow-up-right" class="h-3 w-3 text-fg-muted" />}
       </a>
     ))}
   </nav>

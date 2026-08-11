@@ -170,7 +170,7 @@ async function setupGallery(gallery: HTMLElement, groupIndex: number) {
     button.setAttribute('aria-label', `${value} layout`);
     button.setAttribute('aria-pressed', String(value === layout));
     button.className =
-      'grid h-8 w-8 place-items-center rounded-[var(--radius-control)] border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground aria-pressed:border-primary/40 aria-pressed:bg-accent aria-pressed:text-primary';
+      'grid h-8 w-8 place-items-center rounded-base border border-border text-fg-muted transition-colors hover:bg-hover hover:text-fg aria-pressed:border-accent aria-pressed:bg-accent-bg aria-pressed:text-accent-text';
     button.innerHTML = LAYOUT_ICONS[value];
     button.addEventListener('click', () => {
       if (value === layout || !instance) return;

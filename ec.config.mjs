@@ -6,9 +6,9 @@ export default defineEcConfig({
   useDarkModeMediaQuery: false,
   themeCssSelector: (theme) => theme.name === 'github-dark' ? '.dark' : ':root:not(.dark)',
   styleOverrides: {
-    borderRadius: 'var(--radius-panel)',
-    borderColor: 'var(--color-border)',
-    codeFontSize: '0.875rem',
+    borderRadius: 'var(--radius)',
+    borderColor: 'var(--border)',
+    codeFontSize: 'var(--step--1)',
     codePaddingBlock: '1rem',
     codePaddingInline: '1.35rem',
     frames: {

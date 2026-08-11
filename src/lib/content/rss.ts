@@ -18,7 +18,7 @@ export function renderRss(posts: Array<CollectionEntry<'posts'>>, origin: string
   const items = posts
     .map((entry) => {
       const url = `${siteUrl}${localizedEntryPath('posts', entry as any)}`;
-      const date = entry.data.pubDate.toUTCString();
+      const date = entry.data.date.toUTCString();
       return [
         '<item>',
         `<title>${escapeXml(entry.data.title)}</title>`,

@@ -1,18 +1,19 @@
-export const themes = [
-  { id: 'default', name: 'Default' },
-  { id: 'claude', name: 'Claude' },
-  { id: 'bumblebee', name: 'Bumblebee' },
-  { id: 'emerald', name: 'Emerald' },
-  { id: 'nord', name: 'Nord' },
-  { id: 'sunset', name: 'Sunset' },
-  { id: 'abyss', name: 'Abyss' },
-  { id: 'dracula', name: 'Dracula' },
-  { id: 'amethyst', name: 'Amethyst' },
-  { id: 'slate', name: 'Slate' },
-  { id: 'twitter', name: 'Twitter' },
-  { id: 'minimal', name: 'Minimal' }
+/*
+ * The default theme id. Visitors pick any other color from the Dock — a row
+ * of preset swatches plus a custom hue slider — which applies
+ * `data-theme="custom"` and an inline `--seed`.
+ */
+export const defaultTheme = 'ink';
+
+/* Seed recipe used by the runtime picker — validated for contrast. */
+export const seedColor = (hue: number) => `oklch(52% 0.11 ${hue})`;
+
+/* Preset swatches. `hue: null` is the monochrome default (restores ink). */
+export const seedPresets = [
+  { name: 'Ink', hue: null },
+  { name: 'Iris', hue: 277 },
+  { name: 'Blue', hue: 240 },
+  { name: 'Teal', hue: 190 },
+  { name: 'Grass', hue: 150 },
+  { name: 'Rose', hue: 15 }
 ] as const;
-
-export type ThemeId = (typeof themes)[number]['id'];
-
-export const defaultTheme: ThemeId = 'default';

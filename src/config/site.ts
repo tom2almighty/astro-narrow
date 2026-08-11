@@ -29,8 +29,21 @@ export const siteConfig = {
       enabled: true
     }
   },
-  nav: ['posts', 'series', 'projects', 'archives'],
+  // Items are either a registered route id ('posts' | 'projects' | 'archives')
+  // or an inline link. Inline links accept internal paths and external URLs:
+  // { label: 'Astro', href: 'https://astro.build/', icon: 'lucide:rocket' }
+  // { label: { en: 'About', 'zh-cn': '关于' }, href: '/about/' }
+  nav: ['posts', 'projects', 'archives'],
   footerNav: ['archives'],
+  home: {
+    recentPosts: {
+      enabled: true,
+      limit: 3
+    }
+  },
+  list: {
+    pageSize: 10
+  },
   comments: {
     enabled: false,
     provider: 'giscus',
@@ -97,8 +110,14 @@ export const siteConfig = {
       enabled: boolean;
     };
   };
-  nav: Array<string | { label: Record<Locale, string>; href: string; icon: string }>;
-  footerNav: Array<string | { label: Record<Locale, string>; href: string; icon: string }>;
+  nav: Array<string | { label: string | Record<Locale, string>; href: string; icon?: string }>;
+  footerNav: Array<string | { label: string | Record<Locale, string>; href: string; icon?: string }>;
+  home: {
+    recentPosts: { enabled: boolean; limit: number };
+  };
+  list: {
+    pageSize: number;
+  };
   comments: Record<string, any>;
   analytics: Record<string, any>;
   gallery: Record<string, any>;

@@ -1,11 +1,27 @@
+import { defaultTheme, seedColor } from '../config/theme';
+
+type ColorScheme = 'light' | 'auto' | 'dark';
+
 const root = document.documentElement;
+const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
 const codeThemes = {
   light: 'github-light',
   dark: 'github-dark'
 };
 
+const SEED_KEY = 'seed-hue';
+const GLASS_KEY = 'glass-blur';
+const GRAIN_KEY = 'grain';
+const DEFAULT_HUE = 275;
+const DEFAULT_GLASS = 16;
+
 function currentColorMode() {
   return root.classList.contains('dark') ? 'dark' : 'light';
+}
+
+function storedScheme(): ColorScheme {
+  const value = localStorage.getItem('color-mode');
+  return value === 'light' || value === 'dark' ? value : 'auto';
 }
 
 function syncCodeTheme() {
@@ -16,13 +32,28 @@ function syncCodeTheme() {
 }
 
 function syncDisplayState() {
-  const activeTheme = root.dataset.theme || 'default';
-  document.querySelectorAll<HTMLElement>('[data-theme-value]').forEach((button) => {
-    const active = button.dataset.themeValue === activeTheme;
-    button.setAttribute('aria-pressed', String(active));
-    button.querySelector<HTMLElement>('[data-theme-indicator]')?.classList.toggle('hidden', !active);
+  const scheme = storedScheme();
+  document.querySelectorAll<HTMLElement>('[data-color-scheme]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.colorScheme === scheme));
   });
-  document.querySelector<HTMLElement>('[data-color-mode]')?.setAttribute('aria-pressed', String(root.classList.contains('dark')));
+
+  const hue = localStorage.getItem(SEED_KEY);
+  document.querySelectorAll<HTMLInputElement>('[data-seed-hue]').forEach((input) => {
+    input.value = hue !== null ? hue : String(DEFAULT_HUE);
+  });
+  const glass = localStorage.getItem(GLASS_KEY);
+  document.querySelectorAll<HTMLInputElement>('[data-glass-blur]').forEach((input) => {
+    input.value = glass !== null ? glass : String(DEFAULT_GLASS);
+  });
+  const grain = localStorage.getItem(GRAIN_KEY);
+  document.querySelectorAll<HTMLInputElement>('[data-grain]').forEach((input) => {
+    input.value = grain !== null ? grain : '0';
+  });
+  document.querySelectorAll<HTMLElement>('[data-seed-preset]').forEach((button) => {
+    const value = button.dataset.seedPreset ?? '';
+    const active = hue === null ? value === '' : value === hue;
+    button.setAttribute('aria-pressed', String(active));
+  });
 }
 
 function notifyColorModeChange() {
@@ -33,6 +64,40 @@ function notifyColorModeChange() {
   );
 }
 
+function applyScheme(scheme: ColorScheme) {
+  const dark = scheme === 'dark' || (scheme === 'auto' && systemDark.matches);
+  const changed = root.classList.contains('dark') !== dark;
+  root.classList.toggle('dark', dark);
+  syncDisplayState();
+  if (changed) {
+    syncCodeTheme();
+    notifyColorModeChange();
+  }
+}
+
+function setScheme(scheme: ColorScheme) {
+  if (scheme === 'auto') localStorage.removeItem('color-mode');
+  else localStorage.setItem('color-mode', scheme);
+  applyScheme(scheme);
+}
+
+// Follow the OS while in auto mode.
+systemDark.addEventListener('change', () => {
+  if (storedScheme() === 'auto') applyScheme('auto');
+});
+
+/* Seed color picker ------------------------------------------------------- */
+
+function applySeedHue(hue: number | null) {
+  if (hue === null) {
+    root.dataset.theme = defaultTheme;
+    root.style.removeProperty('--seed');
+  } else {
+    root.dataset.theme = 'custom';
+    root.style.setProperty('--seed', seedColor(hue));
+  }
+}
+
 function setExpanded(button: HTMLElement | null, expanded: boolean) {
   button?.setAttribute('aria-expanded', String(expanded));
 }
@@ -41,6 +106,30 @@ function setPanel(panel: HTMLElement | null, button: HTMLElement | null, open: b
   panel?.classList.toggle('hidden', !open);
   setExpanded(button, open);
 }
+
+document.addEventListener('input', (event) => {
+  const target = event.target as HTMLElement;
+
+  const seedInput = target.closest<HTMLInputElement>('[data-seed-hue]');
+  if (seedInput) {
+    localStorage.setItem(SEED_KEY, seedInput.value);
+    applySeedHue(Number(seedInput.value));
+    return;
+  }
+
+  const glassInput = target.closest<HTMLInputElement>('[data-glass-blur]');
+  if (glassInput) {
+    localStorage.setItem(GLASS_KEY, glassInput.value);
+    root.style.setProperty('--glass-blur', `${glassInput.value}px`);
+    return;
+  }
+
+  const grainInput = target.closest<HTMLInputElement>('[data-grain]');
+  if (grainInput) {
+    localStorage.setItem(GRAIN_KEY, grainInput.value);
+    root.style.setProperty('--grain', String(Number(grainInput.value) / 100));
+  }
+});
 
 document.addEventListener('click', (event) => {
   const target = event.target as HTMLElement;
@@ -83,20 +172,23 @@ document.addEventListener('click', (event) => {
     return;
   }
 
-  const themeValue = target.closest<HTMLElement>('[data-theme-value]');
-  if (themeValue?.dataset.themeValue) {
-    root.dataset.theme = themeValue.dataset.themeValue;
-    localStorage.setItem('theme', themeValue.dataset.themeValue);
+  const presetButton = target.closest<HTMLElement>('[data-seed-preset]');
+  if (presetButton) {
+    const value = presetButton.dataset.seedPreset ?? '';
+    if (value === '') {
+      localStorage.removeItem(SEED_KEY);
+      applySeedHue(null);
+    } else {
+      localStorage.setItem(SEED_KEY, value);
+      applySeedHue(Number(value));
+    }
     syncDisplayState();
     return;
   }
 
-  if (target.closest('[data-color-mode]')) {
-    root.classList.toggle('dark');
-    localStorage.setItem('color-mode', root.classList.contains('dark') ? 'dark' : 'light');
-    syncCodeTheme();
-    syncDisplayState();
-    notifyColorModeChange();
+  const schemeButton = target.closest<HTMLElement>('[data-color-scheme]');
+  if (schemeButton?.dataset.colorScheme) {
+    setScheme(schemeButton.dataset.colorScheme as ColorScheme);
     return;
   }
 

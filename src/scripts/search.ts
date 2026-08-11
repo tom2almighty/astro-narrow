@@ -7,7 +7,6 @@ type SearchItem = {
   lang: string;
   type: string;
   tags?: string[];
-  categories?: string[];
   content?: string;
 };
 
@@ -61,7 +60,7 @@ async function ensureIndex() {
   const data = await indexPromise;
   if (!fuse) {
     fuse = new Fuse(data.filter((item) => item.lang === locale), {
-      keys: ['title', 'description', 'tags', 'categories', 'content'],
+      keys: ['title', 'description', 'tags', 'content'],
       threshold: 0.35,
       ignoreLocation: true
     });
@@ -90,8 +89,8 @@ function renderSearch(query: string) {
   for (const { item } of items) {
     const link = document.createElement('a');
     link.href = item.url;
-    link.className = 'block rounded-md px-3 py-2 hover:bg-accent';
-    link.innerHTML = `<div class="font-medium">${item.title}</div><div class="mt-1 line-clamp-2 text-sm text-muted-foreground">${item.description || ''}</div>`;
+    link.className = 'block rounded-base px-3 py-2 hover:bg-hover';
+    link.innerHTML = `<div class="font-medium">${item.title}</div><div class="mt-1 line-clamp-2 text-step--1 text-fg-muted">${item.description || ''}</div>`;
     results.appendChild(link);
   }
 }

@@ -1,17 +1,19 @@
 # Astro Narrow
 
-A multi-color scheme Astro theme migrated from Hugo Narrow while retaining the overall Narrow design.
+A content-focused Astro theme: one narrow reading column, a seeded color-mix palette, and fluid Utopia typography.
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [Hugo Narrow](https://github.com/tom2almighty/hugo-narrow)
 
 ## Features
 
-- Multiple color palettes
-- Table of contents
-- Search
-- Multiple languages
-- Math and diagrams
-- Multiple gallery layouts
+- Seeded color system: shared paper & ink plus one `--seed`, every token mixed with `color-mix()` — dark mode for free
+- Visitor appearance controls in the Dock: seed presets + custom hue picker, frosted-glass blur, film grain
+- Fluid typography and spacing built on Utopia scales
+- Folder-based series: `index.md` is the parent, sibling files are chapters, the TOC becomes a series spine
+- Paginated post list, tag archives, search, RSS, sitemap
+- Multiple languages (`en` default, `zh-cn` example)
+- Math, Mermaid, tabs, alerts, image galleries
+- Frontmatter-only project cards with auto-icon external links
 
 ## Quick Start
 
@@ -19,93 +21,107 @@ A multi-color scheme Astro theme migrated from Hugo Narrow while retaining the o
 pnpm install
 pnpm dev
 pnpm build
+pnpm astro check
 ```
 
 ## Main Config Files
 
-| File                    | Purpose                                        | Common options                                                                 |
-| ----------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
-| `src/config/site.ts`    | Site, author, and global features              | `contentWidth`, `nav`, `footerNav`, `comments`, `analytics`, `gallery`, `post` |
-| `src/config/content.ts` | Lists and home sections for Posts and Projects | `cardStyle`, `listLayout`, `gridColumns`, `home.enabled`, `home.limit`         |
-| `src/config/i18n.ts`    | Locales and display names                      | `defaultLocale`, `locales`, `localeMeta`                                       |
-| `src/config/theme.ts`   | Palettes available in the Dock                 | `themes`                                                                       |
-| `src/content.config.ts` | Available frontmatter fields                   | Update when adding or changing content fields                                  |
-
-`cardStyle` accepts `article`, `showcase`, or `compact`; `listLayout` accepts `stack` or `grid`; `gridColumns` accepts `1`, `2`, or `3`.
+| File                    | Purpose                             | Common options                                                                       |
+| ----------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
+| `src/config/site.ts`    | Site, author, and global features   | `contentWidth`, `nav`, `footerNav`, `home`, `list.pageSize`, `comments`, `analytics` |
+| `src/config/i18n.ts`    | Locales and display names           | `defaultLocale`, `locales`, `localeMeta`                                             |
+| `src/config/theme.ts`   | Default theme, presets, seed recipe | `defaultTheme`, `seedPresets`, `seedColor`                                           |
+| `src/content.config.ts` | Available frontmatter fields        | Update when adding or changing content fields                                        |
+| `src/styles/tokens.css` | Design tokens                       | Paper/ink axioms, theme seeds, mix recipe, Utopia type/space scales, `--radius`      |
 
 When adding a locale, also update `i18n.locales` in `astro.config.mjs` and the allowed `lang` values in `src/content.config.ts`.
 
-Navigation supports `posts`, `series`, `projects`, and `archives`:
+## Navigation
+
+`nav` and `footerNav` accept registered route ids (`posts`, `projects`, `archives`) and inline links. Inline links work with internal paths and external URLs in both locations; external URLs open in a new tab with an arrow marker.
 
 ```ts
-nav: ["posts", "series", "projects", "archives"],
+nav: [
+  "posts",
+  "projects",
+  "archives",
+  { label: "GitHub", href: "https://github.com/", icon: "simple-icons:github" },
+  { label: { en: "About", "zh-cn": "关于" }, href: "/about/" },
+],
 footerNav: ["archives"],
 ```
 
-A custom item requires localized labels, a URL, and a Lucide icon:
+`label` is a plain string or a per-locale record; `icon` is optional.
+
+## Home Sections and Pagination
 
 ```ts
-{
-  label: { en: "Docs", "zh-cn": "文档" },
-  href: "https://example.com/docs/",
-  icon: "lucide:book-open",
-}
+home: {
+  recentPosts: { enabled: true, limit: 3 },
+},
+list: {
+  pageSize: 10,
+},
 ```
+
+`/posts/` paginates with `pageSize`; page two and later live at `/posts/page/<n>/`.
 
 ## Content Taxonomy
 
-Posts use `categories` and `tags`, both as string arrays:
+Posts use `tags` only:
 
 ```yaml
 ---
 title: Writing with Astro Narrow
-pubDate: 2026-07-10
-categories: [Guides]
+date: 2026-07-10
 tags: [Astro, Markdown]
 ---
 ```
 
-- `categories`: broad content groups such as `Guides` or `Essays`.
-- `tags`: topics or technologies covered by the post; multiple values are allowed.
-- Projects only use `tags`.
-- Pages do not use `categories` or `tags`.
-
-Archives filter URLs can be shared directly:
+Archives discovers tags from published posts. Filter URLs can be shared directly:
 
 ```text
-/archives/?category=Guides
 /archives/?tag=Astro
-/archives/?category=Guides&tag=Astro
 ```
 
-## Ordered Series
+## Series (Subposts)
 
-Create a Markdown file under `src/content/series/<locale>/`. Its filename becomes the Series URL slug, and its Markdown body can provide an introduction.
+A series is a folder inside the posts collection. The folder's `index.md` is the parent post; every sibling Markdown file is a chapter:
+
+```text
+src/content/posts/en/astro-guide/
+├── index.md        → /posts/astro-guide/
+├── setup.md        → /posts/astro-guide/setup/
+└── deploy.md       → /posts/astro-guide/deploy/
+```
+
+- Chapters are ordered by the `order` frontmatter number, falling back to `date`, then filename.
+- The post list and home page show only the parent; archives, search, and RSS include every chapter.
+- The parent page renders a generated chapter list; previous/next navigation runs inside the series.
+- The table of contents becomes a series spine: all chapters listed, the current one expanded, position shown in the capsule.
+- A folder containing only `index.md` plus assets stays an ordinary post.
+
+## Projects
+
+Projects are frontmatter-only link cards rendered in a three-column grid — no detail pages. `links` maps freely chosen keys to URLs; generic keys (`website`, `docs`, `demo`, …) and brand keys found in Simple Icons get icons automatically, everything else falls back to an arrow.
 
 ```yaml
 ---
-title: Astro Narrow Practical Guide
-description: From content authoring to deployment.
-draft: false
-chapters:
-  - en/authoring-content-collections
-  - en/configure-series
-  - en/deploy-github-pages
+title: "Astro Narrow"
+description: "An Astro-native content theme."
+tags: [Astro]
+order: 1
+links:
+  github: https://github.com/example/repo
+  website: https://example.com
 ---
-Follow the chapters in order to move from writing content to deploying the site.
 ```
 
-| Option        | Required | Purpose                                        |
-| ------------- | -------- | ---------------------------------------------- |
-| `title`       | Yes      | Series title                                   |
-| `description` | No       | Summary shown on index and detail pages        |
-| `chapters`    | Yes      | Post IDs in reading order; at least two        |
-| `draft`       | No       | Set to `true` to hide the public Series        |
-| `lang`        | No       | Usually inferred from the `<locale>` directory |
+## Theming
 
-A Post ID is the path relative to `src/content/posts/`, without its extension. A Series and all its chapters must use the same locale, chapters must be published, and a post can belong to only one public Series. Reorder the `chapters` array without changing post URLs.
+The palette is mixed from three colors: shared `--paper` and `--ink` (which flip with the `.dark` class) plus one `--seed` per theme. Every semantic token (`canvas`, `border`, `fg`, `accent`, …) derives from them with `color-mix(in oklab, …)` — mixing toward `--fg` for contrast, toward `--canvas` to recede — so hover states glow with the theme color and nothing falls out of tune. Visitors pick the seed in the Dock: preset swatches (defined in `src/config/theme.ts`) plus a custom hue slider, applied live and persisted; lightness/chroma are fixed at contrast-validated values, so every hue is safe, and the first swatch restores the monochrome default. The same panel dials frosted-glass blur and a film-grain overlay. The shipped default is the monochrome `ink` theme; a site can hard-code its own preset with one `[data-theme] { --seed: … }` line. Cards sit on the canvas behind hairline borders; floating layers share the navbar's translucent-canvas treatment.
 
-`/series/` lists all Series, and `/series/<slug>/` shows the introduction and chapter list. Remove `"series"` from `siteConfig.nav` when a primary navigation entry is not needed.
+Typography and spacing come from vendored [Utopia](https://utopia.fyi) `clamp()` scales (`--step-*`, `--space-*`), exposed as Tailwind utilities (`text-step-1`, `p-fl-m`, …). Article styles live in `src/styles/prose.css` — the theme does not use `@tailwindcss/typography`.
 
 ## Markdown Tabs
 
@@ -113,23 +129,18 @@ Tabs use `remark-directive` syntax. The outer container uses four colons because
 
 ````md
 ::::tabs
-:::tab{title="site.ts"}
+:::tab{title="pnpm"}
 
-```ts
-export const siteConfig = {
-  // Default page width; visitors can override it from Dock display settings.
-  contentWidth: "56rem",
-};
+```sh
+pnpm install
 ```
 
 :::
 
-:::tab{title="content.ts"}
+:::tab{title="npm"}
 
-```ts
-export const contentTypes = {
-  posts: { listLayout: "stack" },
-};
+```sh
+npm install
 ```
 
 :::

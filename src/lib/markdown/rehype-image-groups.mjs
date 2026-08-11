@@ -23,7 +23,7 @@ function figureForImage(img, index = 0) {
       type: 'element',
       tagName: 'div',
       properties: {
-        className: ['image-container', 'flex', 'justify-center', 'overflow-hidden', 'rounded-[var(--radius-panel)]', 'bg-muted/20']
+        className: ['image-container', 'flex', 'justify-center', 'overflow-hidden', 'rounded-base', 'bg-muted/20']
       },
       children: [img]
     }
@@ -33,7 +33,7 @@ function figureForImage(img, index = 0) {
     children.push({
       type: 'element',
       tagName: 'figcaption',
-      properties: { className: ['image-caption', 'mt-2.5', 'text-center', 'text-sm', 'text-muted-foreground'] },
+      properties: { className: ['image-caption', 'mt-2.5', 'text-center', 'text-sm', 'text-fg-muted'] },
       children: [{ type: 'text', value: String(title) }]
     });
   }

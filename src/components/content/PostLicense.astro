@@ -14,13 +14,13 @@ const t = useTranslations(locale);
 ---
 
 {license.enabled && (
-  <section class="mt-10 rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
-    <div class="mb-2 flex items-center gap-2 font-medium text-foreground">
+  <section class="mt-10 rounded-base border border-border bg-muted/40 p-4 text-sm text-fg-muted">
+    <div class="mb-2 flex items-center gap-2 font-medium text-fg">
       <Icon name="lucide:badge-check" class="h-4 w-4" />
       <span>{t('license.label')}</span>
     </div>
     <p>
-      <a href={license.url} class="text-primary hover:underline">{license.name}</a>
+      <a href={license.url} class="text-accent-text hover:underline">{license.name}</a>
       {' '}
       {locale === 'zh-cn' ? '许可协议。' : license.description}
     </p>

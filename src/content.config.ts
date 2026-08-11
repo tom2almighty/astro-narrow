@@ -1,4 +1,5 @@
-import { defineCollection, reference, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const taxonomyTerm = z.string().trim().min(1);
@@ -6,7 +7,7 @@ const taxonomyTerm = z.string().trim().min(1);
 const baseSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
-  pubDate: z.coerce.date().optional(),
+  date: z.coerce.date().optional(),
   updatedDate: z.coerce.date().optional(),
   draft: z.boolean().default(false),
   cover: z.string().optional(),
@@ -22,23 +23,25 @@ const baseSchema = z.object({
 const posts = defineCollection({
   loader: glob({ base: './src/content/posts', pattern: '**/*.{md,mdx}' }),
   schema: baseSchema.extend({
-    pubDate: z.coerce.date(),
+    date: z.coerce.date(),
     tags: z.array(taxonomyTerm).default([]),
-    categories: z.array(taxonomyTerm).default([])
+    // Subposts within a series folder are ordered by `order`, then date, then id.
+    order: z.number().optional()
   })
 });
 
+// Projects are frontmatter-only link cards: the Markdown body is never rendered
+// and no detail routes are generated.
 const projects = defineCollection({
   loader: glob({ base: './src/content/projects', pattern: '**/*.{md,mdx}' }),
-  schema: baseSchema.extend({
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    links: z.record(z.string(), z.string().url()).default({}),
     tags: z.array(taxonomyTerm).default([]),
-    links: z.array(z.object({
-      label: z.string(),
-      url: z.string().url(),
-      icon: z.string().optional(),
-      variant: z.enum(['primary', 'secondary']).default('secondary')
-    })).default([]),
-    featured: z.boolean().default(false)
+    order: z.number().optional(),
+    draft: z.boolean().default(false),
+    lang: z.enum(['en', 'zh-cn']).optional()
   })
 });
 
@@ -49,20 +52,8 @@ const pages = defineCollection({
   })
 });
 
-const series = defineCollection({
-  loader: glob({ base: './src/content/series', pattern: '**/*.{md,mdx}' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    draft: z.boolean().default(false),
-    lang: z.enum(['en', 'zh-cn']).optional(),
-    chapters: z.array(reference('posts')).min(2)
-  })
-});
-
 export const collections = {
   posts,
   projects,
-  pages,
-  series
+  pages
 };

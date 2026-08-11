@@ -13,14 +13,20 @@ const { locale } = Astro.props;
 const navigation = getFooterNavigation(locale);
 ---
 
-<footer class="mt-16 py-8 text-sm text-muted-foreground">
+<footer class="mt-16 py-8 text-step--1 text-fg-muted">
   {navigation.length > 0 && (
     <nav class="mb-6" aria-label="Footer">
       <div class="flex flex-wrap items-center justify-center gap-1">
         {navigation.map((item) => (
-          <a href={item.href} class="footer-nav-link">
-            <Icon name={item.icon} class="h-4 w-4" />
+          <a
+            href={item.href}
+            class="footer-nav-link"
+            target={item.external ? '_blank' : undefined}
+            rel={item.external ? 'noopener noreferrer' : undefined}
+          >
+            {item.icon && <Icon name={item.icon} class="h-4 w-4" />}
             <span>{item.label}</span>
+            {item.external && <Icon name="lucide:arrow-up-right" class="h-3 w-3" />}
           </a>
         ))}
       </div>
@@ -33,7 +39,7 @@ const navigation = getFooterNavigation(locale);
     <p>© {year} {siteConfig.author.name}</p>
     <div class="flex items-center gap-2">
       {siteConfig.author.social.map((item) => (
-        <a class="grid h-9 w-9 place-items-center rounded-[var(--radius-control)] transition-colors duration-200 hover:bg-accent hover:text-accent-foreground" href={item.url} aria-label={item.name}>
+        <a class="grid h-9 w-9 place-items-center rounded-base transition-colors duration-200 hover:bg-hover hover:text-fg" href={item.url} aria-label={item.name}>
           <Icon name={item.icon} class="h-4 w-4" />
         </a>
       ))}

@@ -1,22 +1,25 @@
-const toc = document.getElementById('toc-container');
+const roots = [...document.querySelectorAll<HTMLElement>('[data-toc-root]')];
 
-if (toc) {
-  const links = [...toc.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
-  const title = document.getElementById('toc-center-title');
-  const dropdown = document.getElementById('toc-center-dropdown');
-  const toggle = document.getElementById('toc-center-toggle');
+if (roots.length > 0) {
+  const links = roots.flatMap((root) => [...root.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')]);
+  const titles = [...document.querySelectorAll<HTMLElement>('[data-toc-title]')];
 
   const headingId = (link: HTMLAnchorElement) => decodeURIComponent(link.hash.slice(1));
-  const headings = links
-    .map((link) => document.getElementById(headingId(link)))
+  // Side mode renders capsule + rail, so the same heading appears twice — dedupe.
+  const headings = [...new Set(links.map(headingId))]
+    .map((id) => document.getElementById(id))
     .filter(Boolean) as HTMLElement[];
 
   function setActive(id: string) {
-    links.forEach((link) => {
+    let activeText = '';
+    for (const link of links) {
       const active = headingId(link) === id;
       link.classList.toggle('toc-active', active);
-      if (active && title && link.textContent) title.textContent = link.textContent;
-    });
+      if (active && link.textContent) activeText = link.textContent;
+    }
+    if (activeText) {
+      for (const title of titles) title.textContent = activeText;
+    }
   }
 
   const observer = new IntersectionObserver(
@@ -28,15 +31,23 @@ if (toc) {
   );
   headings.forEach((heading) => observer.observe(heading));
 
-  // Center mode: hover opens on pointer devices; click remains for touch and keyboard use.
-  if (toggle && dropdown) {
-    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  // Capsule open/close: hover opens on pointer devices with a short close
+  // delay (plus a CSS hover bridge over the gap); click covers touch/keyboard.
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  for (const root of roots) {
+    const toggle = root.querySelector<HTMLElement>('[data-toc-toggle]');
+    const dropdown = root.querySelector<HTMLElement>('[data-toc-dropdown]');
+    if (!toggle || !dropdown) continue;
+
+    let closeTimer: number | undefined;
     const isOpen = () => dropdown.classList.contains('is-open');
     const close = () => {
       dropdown.classList.remove('is-open');
       toggle.setAttribute('aria-expanded', 'false');
     };
     const open = () => {
+      window.clearTimeout(closeTimer);
       dropdown.classList.add('is-open');
       toggle.setAttribute('aria-expanded', 'true');
     };
@@ -46,12 +57,14 @@ if (toc) {
       isOpen() ? close() : open();
     });
     if (canHover) {
-      toc.addEventListener('mouseenter', open);
-      toc.addEventListener('mouseleave', close);
+      root.addEventListener('mouseenter', open);
+      root.addEventListener('mouseleave', () => {
+        closeTimer = window.setTimeout(close, 120);
+      });
     }
-    links.forEach((link) => link.addEventListener('click', close));
+    dropdown.querySelectorAll('[data-toc-link]').forEach((link) => link.addEventListener('click', close));
     document.addEventListener('click', (event) => {
-      if (isOpen() && !toc.contains(event.target as Node)) close();
+      if (isOpen() && !root.contains(event.target as Node)) close();
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && isOpen()) close();

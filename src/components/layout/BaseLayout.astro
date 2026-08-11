@@ -2,11 +2,13 @@
 import '../../styles/global.css';
 import { localeMeta, type Locale } from '../../config/i18n';
 import { siteConfig } from '../../config/site';
+import { defaultTheme } from '../../config/theme';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Dock from '../ui/Dock.astro';
 import SearchModal from '../features/SearchModal.astro';
 import Toc from '../features/Toc.astro';
+import type { TocSeries } from '../features/Toc.astro';
 import Comments from '../features/Comments.astro';
 import Analytics from '../features/Analytics.astro';
 import GalleryLightbox from '../features/GalleryLightbox.astro';
@@ -23,6 +25,7 @@ interface Props {
   locale?: Locale;
   headings?: Heading[];
   toc?: boolean | 'center' | 'side';
+  series?: TocSeries;
   comments?: boolean;
 }
 
@@ -32,6 +35,7 @@ const {
   locale = 'en',
   headings = [],
   toc = false,
+  series,
   comments = false
 } = Astro.props;
 
@@ -44,10 +48,19 @@ const themeInit = `
 (() => {
   const root = document.documentElement;
   try {
-    const theme = localStorage.getItem('theme') || 'default';
+    const hue = localStorage.getItem('seed-hue');
+    if (hue !== null) {
+      root.dataset.theme = 'custom';
+      root.style.setProperty('--seed', 'oklch(52% 0.11 ' + hue + ')');
+    } else {
+      root.dataset.theme = '${defaultTheme}';
+    }
+    const glass = localStorage.getItem('glass-blur');
+    if (glass !== null) root.style.setProperty('--glass-blur', glass + 'px');
+    const grain = localStorage.getItem('grain');
+    if (grain !== null) root.style.setProperty('--grain', String(Number(grain) / 100));
     const mode = localStorage.getItem('color-mode');
     const contentWidth = localStorage.getItem('content-width');
-    root.dataset.theme = theme;
     if (contentWidth && /^\\d+(?:\\.\\d+)?rem$/.test(contentWidth)) {
       root.style.setProperty('--layout-content-width', contentWidth);
     }
@@ -62,7 +75,7 @@ const themeInit = `
 ---
 
 <!doctype html>
-<html lang={htmlLang} data-theme="default" style={`--layout-content-width: ${siteConfig.contentWidth}`}>
+<html lang={htmlLang} data-theme={defaultTheme} style={`--layout-content-width: ${siteConfig.contentWidth}`}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -73,14 +86,14 @@ const themeInit = `
     <title>{pageTitle}</title>
     <script is:inline set:html={themeInit}></script>
   </head>
-  <body class="bg-background text-foreground min-h-screen antialiased">
+  <body class="bg-canvas text-fg min-h-screen antialiased">
     <main class="mx-auto min-h-screen w-full max-w-[var(--layout-content-width)] px-4">
       <Header locale={locale} />
       <slot />
       {comments && <Comments />}
       <Footer locale={locale} />
     </main>
-    {toc && headings.length > 0 && <Toc headings={headings} position={toc === true ? 'center' : toc} />}
+    {toc && (headings.length > 0 || series) && <Toc headings={headings} position={toc === true ? 'center' : toc} series={series} />}
     {siteConfig.ui.dock.enabled && <Dock locale={locale} />}
     <SearchModal locale={locale} />
     <GalleryLightbox locale={locale} />

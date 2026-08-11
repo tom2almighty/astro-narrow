@@ -6,60 +6,90 @@ import PostMeta from '../../../components/content/PostMeta.astro';
 import PostLicense from '../../../components/content/PostLicense.astro';
 import PostNavigation from '../../../components/content/PostNavigation.astro';
 import RelatedPosts from '../../../components/content/RelatedPosts.astro';
-import { contentTypes } from '../../../config/content';
+import SeriesChapters from '../../../components/content/SeriesChapters.astro';
 import { getLocalePath, locales, type Locale } from '../../../config/i18n';
 import { siteConfig } from '../../../config/site';
-import { adjacentEntries, getLocalizedEntries, entrySlug, relatedPosts } from '../../../lib/content/entries';
-import { getSeriesContext, localizedSeriesPath } from '../../../lib/content/series';
+import {
+  adjacentEntries,
+  entrySlug,
+  excludeSubposts,
+  getLocalizedEntries,
+  getSeriesContext,
+  localizedEntryPath,
+  relatedPosts
+} from '../../../lib/content/entries';
+import { useTranslations } from '../../../i18n/utils';
 
 export async function getStaticPaths() {
   const paths = [];
   for (const locale of locales.filter((item) => item !== 'en')) {
     const posts = await getLocalizedEntries('posts', locale);
-    paths.push(...posts.map((entry) => ({ params: { locale, slug: entrySlug(entry as any) }, props: { entry, locale } })));
+    paths.push(...posts.map((entry) => ({ params: { locale, slug: entrySlug(entry) }, props: { entry } })));
   }
   return paths;
 }
 
-const { entry, locale } = Astro.props as any as { entry: any; locale: Locale };
+const locale = Astro.params.locale as Locale;
+const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const posts = await getLocalizedEntries('posts', locale);
-const seriesContext = await getSeriesContext(entry);
-const adjacent = seriesContext || adjacentEntries(posts, entry);
-const related = relatedPosts(posts, entry, siteConfig.post.relatedCount);
+const listPosts = excludeSubposts(posts);
+const t = useTranslations(locale);
+
+const seriesContext = getSeriesContext(entry, posts);
+const adjacent = seriesContext
+  ? { previous: seriesContext.previous, next: seriesContext.next }
+  : adjacentEntries(listPosts, entry);
+const related = relatedPosts(listPosts, entry, siteConfig.post.relatedCount);
+
+const seriesMeta = seriesContext ? {
+  title: seriesContext.series.parent.data.title,
+  href: localizedEntryPath('posts', seriesContext.series.parent),
+  position: seriesContext.position,
+  total: seriesContext.series.subposts.length
+} : undefined;
+
+const tocSeries = seriesContext && seriesMeta ? {
+  ...seriesMeta,
+  items: seriesContext.series.sequence.map((item, index) => ({
+    title: index === 0 ? t('series.overview') : item.data.title,
+    href: localizedEntryPath('posts', item),
+    current: item.id === entry.id,
+    position: index
+  }))
+} : undefined;
+
+const breadcrumbs = [
+  { label: siteConfig.shortName, href: getLocalePath(locale, '/'), icon: 'lucide:home' },
+  { label: t('posts.title'), href: getLocalePath(locale, '/posts/'), icon: 'lucide:file-text' },
+  ...(seriesContext && seriesMeta && seriesContext.position > 0
+    ? [{ label: seriesMeta.title, href: seriesMeta.href, icon: 'lucide:list-ordered' }]
+    : []),
+  { label: entry.data.title, icon: 'lucide:file-text' }
+];
 ---
 
-<BaseLayout title={entry.data.title} description={entry.data.description} locale={locale} headings={headings} toc={entry.data.toc ?? 'center'} comments={entry.data.comments}>
-  <Breadcrumbs
-    locale={locale}
-    items={[
-      { label: siteConfig.shortName, href: getLocalePath(locale, '/'), icon: 'lucide:home' },
-      { label: contentTypes.posts.label[locale], href: getLocalePath(locale, contentTypes.posts.path), icon: contentTypes.posts.icon },
-      { label: entry.data.title, icon: 'lucide:file-text' }
-    ]}
-  />
+<BaseLayout title={entry.data.title} description={entry.data.description} locale={locale} headings={headings} toc={entry.data.toc ?? 'center'} series={tocSeries} comments={entry.data.comments}>
+  <Breadcrumbs locale={locale} items={breadcrumbs} />
   {entry.data.cover && (
-    <div class="mb-8 overflow-hidden rounded-[var(--radius-card)]">
+    <div class="mb-8 overflow-hidden rounded-base">
       <img src={entry.data.cover} alt={entry.data.title} class="aspect-video max-h-[60vh] w-full object-cover" loading="eager" />
     </div>
   )}
   <PostMeta
     title={entry.data.title}
     description={entry.data.description}
-    date={entry.data.pubDate}
+    date={entry.data.date}
+    updatedDate={entry.data.updatedDate}
     locale={locale}
-    categories={entry.data.categories}
     tags={entry.data.tags}
-    series={seriesContext ? {
-      title: seriesContext.series.entry.data.title,
-      href: localizedSeriesPath(seriesContext.series.entry),
-      position: seriesContext.position,
-      total: seriesContext.series.chapters.length
-    } : undefined}
   />
-  <article class="prose mb-12 max-w-none">
+  <article class="prose mb-12">
     <Content />
   </article>
+  {seriesContext && seriesContext.position === 0 && (
+    <SeriesChapters chapters={seriesContext.series.subposts} locale={locale} />
+  )}
   <PostLicense locale={locale} />
   <PostNavigation previous={adjacent.previous} next={adjacent.next} locale={locale} kind={seriesContext ? 'series' : 'post'} />
   <RelatedPosts posts={related} locale={locale} />
