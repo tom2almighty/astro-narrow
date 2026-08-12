@@ -1,6 +1,6 @@
 ---
 import '../../styles/global.css';
-import { localeMeta, type Locale } from '../../config/i18n';
+import { defaultLocale, localeMeta, type Locale } from '../../config/i18n';
 import { siteConfig } from '../../config/site';
 import { defaultScheme, defaultTheme } from '../../config/theme';
 import Header from './Header.astro';
@@ -32,7 +32,7 @@ interface Props {
 const {
   title = siteConfig.name,
   description = siteConfig.description,
-  locale = 'en',
+  locale = defaultLocale,
   headings = [],
   toc = false,
   series,

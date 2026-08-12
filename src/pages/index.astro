@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../components/layout/BaseLayout.astro';
+import { defaultLocale } from '../config/i18n';
 import HomePage from '../components/home/HomePage.astro';
 import { siteConfig } from '../config/site';
 import { excludeSubposts, getLocalizedEntries } from '../lib/content/entries';
 
-const locale = 'en';
+const locale = defaultLocale;
 const { recentPosts } = siteConfig.home;
 
 const posts = recentPosts.enabled

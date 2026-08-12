@@ -7,7 +7,7 @@ import PostLicense from '../../../components/content/PostLicense.astro';
 import PostNavigation from '../../../components/content/PostNavigation.astro';
 import RelatedPosts from '../../../components/content/RelatedPosts.astro';
 import SeriesChapters from '../../../components/content/SeriesChapters.astro';
-import { getLocalePath, locales, type Locale } from '../../../config/i18n';
+import { defaultLocale, getLocalePath, locales, type Locale } from '../../../config/i18n';
 import { siteConfig } from '../../../config/site';
 import {
   adjacentEntries,
@@ -22,7 +22,7 @@ import { useTranslations } from '../../../i18n/utils';
 
 export async function getStaticPaths() {
   const paths = [];
-  for (const locale of locales.filter((item) => item !== 'en')) {
+  for (const locale of locales.filter((item) => item !== defaultLocale)) {
     const posts = await getLocalizedEntries('posts', locale);
     paths.push(...posts.map((entry) => ({ params: { locale, slug: entrySlug(entry) }, props: { entry } })));
   }

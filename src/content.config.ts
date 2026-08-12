@@ -1,8 +1,10 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { locales } from './config/i18n';
 
 const taxonomyTerm = z.string().trim().min(1);
+const localeEnum = z.enum(locales);
 
 const baseSchema = z.object({
   title: z.string(),
@@ -11,7 +13,7 @@ const baseSchema = z.object({
   updatedDate: z.coerce.date().optional(),
   draft: z.boolean().default(false),
   cover: z.string().optional(),
-  lang: z.enum(['en', 'zh-cn']).optional(),
+  lang: localeEnum.optional(),
   toc: z.union([z.boolean(), z.enum(['center', 'side'])]).optional(),
   comments: z.boolean().optional(),
   math: z.boolean().optional(),
@@ -41,7 +43,7 @@ const projects = defineCollection({
     tags: z.array(taxonomyTerm).default([]),
     order: z.number().optional(),
     draft: z.boolean().default(false),
-    lang: z.enum(['en', 'zh-cn']).optional()
+    lang: localeEnum.optional()
   })
 });
 

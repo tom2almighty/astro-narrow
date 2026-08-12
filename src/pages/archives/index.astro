@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '../../components/layout/BaseLayout.astro';
+import { defaultLocale } from '../../config/i18n';
 import PageHeader from '../../components/content/PageHeader.astro';
 import ArchiveTimeline from '../../components/content/ArchiveTimeline.astro';
 import ArchiveFilters from '../../components/content/ArchiveFilters.astro';
 import { collectTagTerms, getLocalizedEntries } from '../../lib/content/entries';
 import { useTranslations } from '../../i18n/utils';
 
-const locale = 'en';
+const locale = defaultLocale;
 const posts = await getLocalizedEntries('posts', locale);
 const tags = collectTagTerms(posts, locale);
 const t = useTranslations(locale);

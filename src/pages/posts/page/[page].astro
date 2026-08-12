@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../../components/layout/BaseLayout.astro';
+import { defaultLocale } from '../../../config/i18n';
 import PostList from '../../../components/content/PostList.astro';
 import PageHeader from '../../../components/content/PageHeader.astro';
 import Pagination from '../../../components/ui/Pagination.astro';
@@ -9,7 +10,7 @@ import { useTranslations } from '../../../i18n/utils';
 import type { CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = excludeSubposts(await getLocalizedEntries('posts', 'en'));
+  const posts = excludeSubposts(await getLocalizedEntries('posts', defaultLocale));
   const pages = paginateEntries(posts, siteConfig.list.pageSize);
   return pages.slice(1).map((entries, index) => ({
     params: { page: String(index + 2) },
@@ -23,7 +24,7 @@ interface Props {
   total: number;
 }
 
-const locale = 'en';
+const locale = defaultLocale;
 const { entries, current, total } = Astro.props;
 const t = useTranslations(locale);
 ---

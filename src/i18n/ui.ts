@@ -1,11 +1,11 @@
-import type { Locale } from '../config/i18n';
+import { defaultLocale, type Locale } from '../config/i18n';
 
 export const languages: Record<Locale, string> = {
   en: 'English',
   'zh-cn': '简体中文'
 };
 
-export const defaultLang: Locale = 'en';
+export const defaultLang: Locale = defaultLocale;
 
 export const ui = {
   en: {

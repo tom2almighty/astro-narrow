@@ -3,7 +3,7 @@ import BaseLayout from '../../../../components/layout/BaseLayout.astro';
 import PostList from '../../../../components/content/PostList.astro';
 import PageHeader from '../../../../components/content/PageHeader.astro';
 import Pagination from '../../../../components/ui/Pagination.astro';
-import { locales, type Locale } from '../../../../config/i18n';
+import { defaultLocale, locales, type Locale } from '../../../../config/i18n';
 import { siteConfig } from '../../../../config/site';
 import { excludeSubposts, getLocalizedEntries, paginateEntries } from '../../../../lib/content/entries';
 import { useTranslations } from '../../../../i18n/utils';
@@ -11,7 +11,7 @@ import type { CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
   const paths = [];
-  for (const locale of locales.filter((item) => item !== 'en')) {
+  for (const locale of locales.filter((item) => item !== defaultLocale)) {
     const posts = excludeSubposts(await getLocalizedEntries('posts', locale));
     const pages = paginateEntries(posts, siteConfig.list.pageSize);
     paths.push(...pages.slice(1).map((entries, index) => ({

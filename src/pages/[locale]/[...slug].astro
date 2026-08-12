@@ -2,12 +2,12 @@
 import { render } from 'astro:content';
 import BaseLayout from '../../components/layout/BaseLayout.astro';
 import PageHeader from '../../components/content/PageHeader.astro';
-import { locales, type Locale } from '../../config/i18n';
+import { defaultLocale, locales, type Locale } from '../../config/i18n';
 import { getLocalizedEntries, entrySlug } from '../../lib/content/entries';
 
 export async function getStaticPaths() {
   const paths = [];
-  for (const locale of locales.filter((item) => item !== 'en')) {
+  for (const locale of locales.filter((item) => item !== defaultLocale)) {
     const pages = await getLocalizedEntries('pages', locale);
     paths.push(...pages.map((entry) => ({ params: { locale, slug: entrySlug(entry as any) }, props: { entry, locale } })));
   }

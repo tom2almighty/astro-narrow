@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { getLocaleFromId, getLocalePath, stripLocaleFromId, type Locale } from '../../config/i18n';
+import { getLocaleFromId, getLocalePath, localeMeta, stripLocaleFromId, type Locale } from '../../config/i18n';
 
 export type ContentType = 'posts' | 'projects' | 'pages';
 
@@ -39,7 +39,7 @@ export function localizedEntryPath(collection: 'posts' | 'pages', entry: Collect
 
 export function formatDate(date: Date | undefined, locale: Locale) {
   if (!date) return '';
-  return new Intl.DateTimeFormat(locale === 'zh-cn' ? 'zh-CN' : 'en', {
+  return new Intl.DateTimeFormat(localeMeta[locale].dateLocale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'

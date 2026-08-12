@@ -1,11 +1,12 @@
 ---
 import { render } from 'astro:content';
+import { defaultLocale } from '../config/i18n';
 import BaseLayout from '../components/layout/BaseLayout.astro';
 import PageHeader from '../components/content/PageHeader.astro';
 import { getLocalizedEntries, entrySlug } from '../lib/content/entries';
 
 export async function getStaticPaths() {
-  const pages = await getLocalizedEntries('pages', 'en');
+  const pages = await getLocalizedEntries('pages', defaultLocale);
   return pages.map((entry) => ({ params: { slug: entrySlug(entry as any) }, props: { entry } }));
 }
 

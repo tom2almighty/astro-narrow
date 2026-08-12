@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../components/layout/BaseLayout.astro';
-import { getLocalePath } from '../config/i18n';
+import { defaultLocale, getLocalePath } from '../config/i18n';
 import { useTranslations } from '../i18n/utils';
 
-const locale = 'en';
+const locale = defaultLocale;
 const t = useTranslations(locale);
 const homeHref = getLocalePath(locale, '/');
 ---

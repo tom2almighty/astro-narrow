@@ -1,6 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { getLocalePath, locales, localeMeta, switchLocalePath, type Locale } from '../../config/i18n';
+import { getLocalePath, type Locale } from '../../config/i18n';
 import { siteConfig } from '../../config/site';
 import { defaultScheme, schemes, seedColor, seedLimits, seedPresets } from '../../config/theme';
 import { useTranslations } from '../../i18n/utils';
@@ -20,7 +20,6 @@ const labels = {
   glass: t('dock.glass'),
   grain: t('dock.grain'),
   home: t('dock.home'),
-  language: t('nav.language'),
   scheme: t('dock.scheme'),
   seedChroma: t('dock.seedChroma'),
   seedHue: t('dock.seedHue'),
@@ -35,7 +34,6 @@ const colorSchemes = [
   { value: 'dark', icon: 'lucide:moon', label: t('colorMode.dark') }
 ] as const;
 const homeHref = getLocalePath(locale, '/');
-const currentPath = Astro.url.pathname;
 const inkSeed = seedPresets[0];
 const parsedContentWidth = /^\d+(?:\.\d+)?rem$/.test(siteConfig.contentWidth)
   ? Number.parseFloat(siteConfig.contentWidth)
@@ -207,18 +205,7 @@ const maximumContentWidth = Math.ceil(defaultContentWidth + 24);
     </div>
   </div>
 
-  <div class="relative z-10">
-    <button type="button" data-lang-menu aria-expanded="false" class="dock-control grid h-10 w-10 place-items-center rounded-base text-fg-muted transition hover:bg-hover hover:text-fg" aria-label={labels.language} title={labels.language}>
-      <Icon name="lucide:languages" class="h-4 w-4" />
-    </button>
-    <div data-lang-panel class="absolute bottom-full left-1/2 mb-2 hidden w-36 -translate-x-1/2 rounded-base border border-border glass p-1 text-sm">
-      {locales.map((item) => (
-        <a href={switchLocalePath(item, currentPath)} class="block rounded px-2 py-1.5 hover:bg-hover" aria-current={item === locale ? 'page' : undefined}>
-          {localeMeta[item].label}
-        </a>
-      ))}
-    </div>
-  </div>
+  <span class="relative z-10 h-5 w-px bg-border/80" aria-hidden="true"></span>
 
   <button type="button" data-back-top class="dock-control grid h-10 w-10 place-items-center rounded-base text-fg-muted transition hover:bg-hover hover:text-fg" aria-label={labels.top} title={labels.top}>
     <Icon name="lucide:arrow-up" class="h-4 w-4" />

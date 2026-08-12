@@ -1,9 +1,9 @@
-import { locales, type Locale } from '../../config/i18n';
+import { defaultLocale, locales, type Locale } from '../../config/i18n';
 import { getLocalizedEntries } from '../../lib/content/entries';
 import { renderRss } from '../../lib/content/rss';
 
 export function getStaticPaths() {
-  return locales.filter((locale) => locale !== 'en').map((locale) => ({ params: { locale } }));
+  return locales.filter((locale) => locale !== defaultLocale).map((locale) => ({ params: { locale } }));
 }
 
 export async function GET({ params, site, url }: { params: { locale: Locale }; site?: URL; url: URL }) {
