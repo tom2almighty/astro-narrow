@@ -1,6 +1,7 @@
-import { defaultScheme, defaultTheme, seedColor } from '../config/theme';
+import { defaultScheme, defaultTheme, inkSeed, seedPresets, type SeedRecipe } from '../config/theme';
 
-type ColorScheme = 'light' | 'auto' | 'dark';
+type ColorMode = 'light' | 'auto' | 'dark';
+type AppliedColorMode = 'light' | 'dark';
 
 const root = document.documentElement;
 const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -9,18 +10,17 @@ const codeThemes = {
   dark: 'github-dark'
 };
 
-const SEED_KEY = 'seed-hue';
+const SEED_KEY = 'seed';
 const GLASS_KEY = 'glass-blur';
 const GRAIN_KEY = 'grain';
 const SCHEME_KEY = 'scheme';
-const DEFAULT_HUE = 275;
 const DEFAULT_GLASS = 16;
 
-function currentColorMode() {
+function currentColorMode(): AppliedColorMode {
   return root.classList.contains('dark') ? 'dark' : 'light';
 }
 
-function storedScheme(): ColorScheme {
+function storedMode(): ColorMode {
   const value = localStorage.getItem('color-mode');
   return value === 'light' || value === 'dark' ? value : 'auto';
 }
@@ -32,16 +32,82 @@ function syncCodeTheme() {
   });
 }
 
+/* Seed color ------------------------------------------------------------- */
+
+function readStoredSeed(): SeedRecipe | null {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(SEED_KEY) ?? 'null');
+    if (value && typeof value === 'object') {
+      const seed = value as Record<string, unknown>;
+      if (typeof seed.l === 'number' && typeof seed.c === 'number' && typeof seed.h === 'number') {
+        return { l: seed.l, c: seed.c, h: seed.h };
+      }
+    }
+  } catch {
+    // Corrupt storage — fall through to the default.
+  }
+  return null;
+}
+
+function writeStoredSeed(seed: SeedRecipe | null) {
+  if (seed) localStorage.setItem(SEED_KEY, JSON.stringify(seed));
+  else localStorage.removeItem(SEED_KEY);
+}
+
+/* Apply a recipe inline, or restore the ink theme (no inline values). */
+function applySeed(seed: SeedRecipe | null) {
+  if (seed) {
+    root.dataset.theme = 'custom';
+    root.style.setProperty('--seed-recipe-l', String(seed.l));
+    root.style.setProperty('--seed-recipe-c', String(seed.c));
+    root.style.setProperty('--seed-recipe-h', String(seed.h));
+  } else {
+    root.dataset.theme = defaultTheme;
+    root.style.removeProperty('--seed-recipe-l');
+    root.style.removeProperty('--seed-recipe-c');
+    root.style.removeProperty('--seed-recipe-h');
+  }
+}
+
+const seedMatches = (a: SeedRecipe, b: SeedRecipe) =>
+  Math.abs(a.l - b.l) < 1e-3 && Math.abs(a.c - b.c) < 1e-3 && Math.abs(a.h - b.h) < 1e-3;
+
+function currentSeed(): SeedRecipe {
+  return readStoredSeed() ?? inkSeed;
+}
+
+function syncSeedControls(seed: SeedRecipe) {
+  const hue = document.querySelector<HTMLInputElement>('[data-seed-h]');
+  const chroma = document.querySelector<HTMLInputElement>('[data-seed-c]');
+  const lightness = document.querySelector<HTMLInputElement>('[data-seed-l]');
+  if (hue) hue.value = String(seed.h);
+  if (chroma) chroma.value = String(seed.c);
+  if (lightness) lightness.value = String(seed.l);
+
+  const outputs = {
+    '[data-seed-h-output]': `${Math.round(seed.h)}°`,
+    '[data-seed-c-output]': seed.c.toFixed(2),
+    '[data-seed-l-output]': `${Math.round(seed.l * 100)}%`
+  };
+  for (const [selector, text] of Object.entries(outputs)) {
+    const output = document.querySelector<HTMLElement>(selector);
+    if (output) output.textContent = text;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-seed-preset]').forEach((button) => {
+    const preset = seedPresets.find((item) => item.id === button.dataset.seedPreset);
+    button.setAttribute('aria-pressed', String(!!preset && seedMatches(preset, seed)));
+  });
+}
+
 function syncDisplayState() {
-  const scheme = storedScheme();
-  document.querySelectorAll<HTMLElement>('[data-color-scheme]').forEach((button) => {
-    button.setAttribute('aria-pressed', String(button.dataset.colorScheme === scheme));
+  const mode = storedMode();
+  document.querySelectorAll<HTMLElement>('[data-color-mode]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.colorMode === mode));
   });
 
-  const hue = localStorage.getItem(SEED_KEY);
-  document.querySelectorAll<HTMLInputElement>('[data-seed-hue]').forEach((input) => {
-    input.value = hue !== null ? hue : String(DEFAULT_HUE);
-  });
+  syncSeedControls(currentSeed());
+
   const glass = localStorage.getItem(GLASS_KEY);
   document.querySelectorAll<HTMLInputElement>('[data-glass-blur]').forEach((input) => {
     input.value = glass !== null ? glass : String(DEFAULT_GLASS);
@@ -49,11 +115,6 @@ function syncDisplayState() {
   const grain = localStorage.getItem(GRAIN_KEY);
   document.querySelectorAll<HTMLInputElement>('[data-grain]').forEach((input) => {
     input.value = grain !== null ? grain : '0';
-  });
-  document.querySelectorAll<HTMLElement>('[data-seed-preset]').forEach((button) => {
-    const value = button.dataset.seedPreset ?? '';
-    const active = hue === null ? value === '' : value === hue;
-    button.setAttribute('aria-pressed', String(active));
   });
   const activeScheme = localStorage.getItem(SCHEME_KEY) ?? defaultScheme;
   document.querySelectorAll<HTMLElement>('[data-scheme-preset]').forEach((button) => {
@@ -69,8 +130,8 @@ function notifyColorModeChange() {
   );
 }
 
-function applyScheme(scheme: ColorScheme) {
-  const dark = scheme === 'dark' || (scheme === 'auto' && systemDark.matches);
+function applyMode(mode: ColorMode) {
+  const dark = mode === 'dark' || (mode === 'auto' && systemDark.matches);
   const changed = root.classList.contains('dark') !== dark;
   root.classList.toggle('dark', dark);
   syncDisplayState();
@@ -80,28 +141,16 @@ function applyScheme(scheme: ColorScheme) {
   }
 }
 
-function setScheme(scheme: ColorScheme) {
-  if (scheme === 'auto') localStorage.removeItem('color-mode');
-  else localStorage.setItem('color-mode', scheme);
-  applyScheme(scheme);
+function setMode(mode: ColorMode) {
+  if (mode === 'auto') localStorage.removeItem('color-mode');
+  else localStorage.setItem('color-mode', mode);
+  applyMode(mode);
 }
 
 // Follow the OS while in auto mode.
 systemDark.addEventListener('change', () => {
-  if (storedScheme() === 'auto') applyScheme('auto');
+  if (storedMode() === 'auto') applyMode('auto');
 });
-
-/* Seed color picker ------------------------------------------------------- */
-
-function applySeedHue(hue: number | null) {
-  if (hue === null) {
-    root.dataset.theme = defaultTheme;
-    root.style.removeProperty('--seed');
-  } else {
-    root.dataset.theme = 'custom';
-    root.style.setProperty('--seed', seedColor(hue));
-  }
-}
 
 function setExpanded(button: HTMLElement | null, expanded: boolean) {
   button?.setAttribute('aria-expanded', String(expanded));
@@ -115,10 +164,19 @@ function setPanel(panel: HTMLElement | null, button: HTMLElement | null, open: b
 document.addEventListener('input', (event) => {
   const target = event.target as HTMLElement;
 
-  const seedInput = target.closest<HTMLInputElement>('[data-seed-hue]');
+  const seedInput = target.closest<HTMLInputElement>('[data-seed-h], [data-seed-c], [data-seed-l]');
   if (seedInput) {
-    localStorage.setItem(SEED_KEY, seedInput.value);
-    applySeedHue(Number(seedInput.value));
+    const hue = document.querySelector<HTMLInputElement>('[data-seed-h]');
+    const chroma = document.querySelector<HTMLInputElement>('[data-seed-c]');
+    const lightness = document.querySelector<HTMLInputElement>('[data-seed-l]');
+    const seed = {
+      h: Number(hue?.value ?? inkSeed.h),
+      c: Number(chroma?.value ?? inkSeed.c),
+      l: Number(lightness?.value ?? inkSeed.l)
+    };
+    writeStoredSeed(seed);
+    applySeed(seed);
+    syncSeedControls(seed);
     return;
   }
 
@@ -178,16 +236,12 @@ document.addEventListener('click', (event) => {
   }
 
   const presetButton = target.closest<HTMLElement>('[data-seed-preset]');
-  if (presetButton) {
-    const value = presetButton.dataset.seedPreset ?? '';
-    if (value === '') {
-      localStorage.removeItem(SEED_KEY);
-      applySeedHue(null);
-    } else {
-      localStorage.setItem(SEED_KEY, value);
-      applySeedHue(Number(value));
-    }
-    syncDisplayState();
+  if (presetButton?.dataset.seedPreset) {
+    const preset = seedPresets.find((item) => item.id === presetButton.dataset.seedPreset);
+    const seed = preset && preset.id !== 'ink' ? preset : null;
+    writeStoredSeed(seed);
+    applySeed(seed);
+    syncSeedControls(seed ?? inkSeed);
     return;
   }
 
@@ -201,9 +255,9 @@ document.addEventListener('click', (event) => {
     return;
   }
 
-  const schemeButton = target.closest<HTMLElement>('[data-color-scheme]');
-  if (schemeButton?.dataset.colorScheme) {
-    setScheme(schemeButton.dataset.colorScheme as ColorScheme);
+  const modeButton = target.closest<HTMLElement>('[data-color-mode]');
+  if (modeButton?.dataset.colorMode) {
+    setMode(modeButton.dataset.colorMode as ColorMode);
     return;
   }
 

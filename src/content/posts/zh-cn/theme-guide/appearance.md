@@ -7,33 +7,37 @@ tags: ["指南", "设计令牌"]
 toc: "center"
 ---
 
-整个调色板由三个颜色混出:共享的 `--paper` 与 `--ink`(随明暗模式翻转),加上一枚 `--seed`。所有 token——纸面、边框、悬浮、链接——都用 `color-mix(in oklab, …)` 从三者推导,任何种子都不会失调。
+整个调色板由三个颜色混出:共享的 `--paper` 与 `--ink`(随明暗模式翻转),加上一枚 `--seed`。所有 token——纸面、边框、悬浮、链接——都用 `color-mix(in oklch, …)` 从三者推导,任何种子都不会失调。
 
 ## Dock 显示面板
 
 底部 Dock 的设置按钮打开显示面板:
 
 - **明暗模式**——亮色、自动、暗色。自动跟随系统并实时切换。
-- **主题色**——预设色板加一条自定义色相滑条。滑条的亮度与彩度固定在经对比度验证的数值上,任何色相都可读;第一枚色板恢复单色默认。选择按访客持久化。
+- **主题色**——预设色板加色相、彩度、明度三条自定义滑杆。取色器覆盖整个色相环和可用的彩度范围,明度限制在 30–70%,任意种子下的强调与链接都保持可读;第一枚色板恢复单色默认。选择按访客持久化。
 - **磨砂强度**——导航栏、Dock 与浮层的毛玻璃模糊。
 - **背景颗粒**——页面上的胶片颗粒覆盖层,默认关闭。
 - **页面宽度**——围绕 `contentWidth` 调整阅读栏宽。
 
 ## 硬编码一套主题
 
-想让站点固定自己的默认色,在 `src/styles/tokens.css` 声明种子,并把 `src/config/theme.ts` 的 `defaultTheme` 指向它:
+想让站点固定自己的默认色,在 `src/styles/tokens.css` 声明种子配方,并把 `src/config/theme.ts` 的 `defaultTheme` 指向它:
 
 ```css
 [data-theme='teal'] {
-  --seed: oklch(52% 0.11 195);
+  --seed-recipe-l: 0.58;
+  --seed-recipe-c: 0.17;
+  --seed-recipe-h: 190;
 }
 ```
 
-种子亮度取 50–58%,白色文字在实色 accent 上保持可读。内置的单色默认(`ink`)额外把实色 accent 绑定为墨本身:
+声明配方通道而不是 `--seed` 本身,配色方案才能在此基础上继续重调彩度。实色 accent 的文字颜色由 `contrast-color()` 原生决定,链接文字则是种子经过相对颜色语法做的明暗自适应变换——亮色下压暗、暗色下抬亮——取色器 30–70% 明度范围内的种子都保持可读。内置的单色默认(`ink`)额外把实色 accent 绑定为墨本身:
 
 ```css
 [data-theme='ink'] {
-  --seed: oklch(25% 0.012 285);
+  --seed-recipe-l: 0.3;
+  --seed-recipe-c: 0.01;
+  --seed-recipe-h: 285;
   --accent: var(--fg);
   --accent-contrast: var(--canvas);
   --accent-text: var(--fg);

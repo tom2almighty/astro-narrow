@@ -7,33 +7,37 @@ tags: ["Guide", "Design Tokens"]
 toc: "center"
 ---
 
-The whole palette is mixed from three colors: shared `--paper` and `--ink` (which flip with dark mode) plus one `--seed`. Every token — canvas, borders, hover, links — derives from them with `color-mix(in oklab, …)`, so any seed stays in tune.
+The whole palette is mixed from three colors: shared `--paper` and `--ink` (which flip with dark mode) plus one `--seed`. Every token — canvas, borders, hover, links — derives from them with `color-mix(in oklch, …)`, so any seed stays in tune.
 
 ## The Dock display panel
 
 The settings button on the bottom Dock opens the display panel:
 
 - **Color mode** — light, auto, or dark. Auto follows the OS and updates live.
-- **Theme color** — preset swatches plus a hue slider for a custom seed. The slider's lightness and chroma are fixed at contrast-validated values, so every hue is readable; the first swatch restores the monochrome default. Choices persist per visitor.
+- **Theme color** — preset swatches plus hue, chroma, and lightness sliders for a custom seed. The picker covers the full hue circle and a usable chroma range, with lightness clamped to 30–70% so any seed keeps readable accents and links; the first swatch restores the monochrome default. Choices persist per visitor.
 - **Frosted glass** — blur strength of the navigation bar, Dock, and floating panels.
 - **Grain** — a film-grain overlay on the page, off by default.
 - **Page width** — adjusts the reading column around your `contentWidth`.
 
 ## Hard-code a theme
 
-To ship your own default color, declare a seed in `src/styles/tokens.css` and point `defaultTheme` in `src/config/theme.ts` at it:
+To ship your own default color, declare a seed recipe in `src/styles/tokens.css` and point `defaultTheme` in `src/config/theme.ts` at it:
 
 ```css
 [data-theme='teal'] {
-  --seed: oklch(52% 0.11 195);
+  --seed-recipe-l: 0.58;
+  --seed-recipe-c: 0.17;
+  --seed-recipe-h: 190;
 }
 ```
 
-Keep seeds around 50–58% lightness so white text stays readable on solid accents. The shipped monochrome default (`ink`) additionally binds the solid accent to the ink itself:
+Set the recipe channels rather than `--seed` itself, so color schemes can still re-tune chroma on top. Solid-accent text is picked natively with `contrast-color()`, and accent text is a mode-adaptive transform of the seed via relative color syntax — darker in light mode, lifted in dark mode — so seeds across the picker's 30–70% lightness range stay readable. The shipped monochrome default (`ink`) additionally binds the solid accent to the ink itself:
 
 ```css
 [data-theme='ink'] {
-  --seed: oklch(25% 0.012 285);
+  --seed-recipe-l: 0.3;
+  --seed-recipe-c: 0.01;
+  --seed-recipe-h: 285;
   --accent: var(--fg);
   --accent-contrast: var(--canvas);
   --accent-text: var(--fg);

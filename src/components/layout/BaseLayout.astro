@@ -48,10 +48,12 @@ const themeInit = `
 (() => {
   const root = document.documentElement;
   try {
-    const hue = localStorage.getItem('seed-hue');
-    if (hue !== null) {
+    const seed = JSON.parse(localStorage.getItem('seed') || 'null');
+    if (seed && typeof seed.l === 'number') {
       root.dataset.theme = 'custom';
-      root.style.setProperty('--seed', 'oklch(52% 0.11 ' + hue + ')');
+      root.style.setProperty('--seed-recipe-l', String(seed.l));
+      root.style.setProperty('--seed-recipe-c', String(seed.c));
+      root.style.setProperty('--seed-recipe-h', String(seed.h));
     } else {
       root.dataset.theme = '${defaultTheme}';
     }

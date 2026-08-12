@@ -30,7 +30,7 @@ pnpm astro check
 | ----------------------- | ------------------------ | ------------------------------------------------------------------------------------ |
 | `src/config/site.ts`    | 站点、作者与全局功能     | `contentWidth`、`nav`、`footerNav`、`home`、`list.pageSize`、`comments`、`analytics` |
 | `src/config/i18n.ts`    | 语言与显示名称           | `defaultLocale`、`locales`、`localeMeta`                                             |
-| `src/config/theme.ts`   | 默认主题、配色方案与预设 | `defaultTheme`、`defaultScheme`、`schemes`、`seedPresets`、`seedColor`               |
+| `src/config/theme.ts`   | 默认主题、配色方案与预设 | `defaultTheme`、`defaultScheme`、`schemes`、`seedPresets`、`seedColor`、`seedLimits` |
 | `src/content.config.ts` | 可用的 frontmatter 字段  | 新增或修改内容字段时更新                                                             |
 | `src/styles/tokens.css` | 设计令牌                 | 纸/墨公理色、主题种子、混色配方、Utopia 字号/间距刻度、`--radius`                    |
 
@@ -121,8 +121,8 @@ links:
 
 换颜色不需要懂配色:
 
-- **读者侧**:Dock 的显示设置里有预设色板和自定义色相条,挑一个颜色,整站立刻换装并记住选择。旁边的「配色方案」按钮(默认/着色/鲜明/柔和)决定颜色用得多重——纸面要不要带一点主题色、悬浮和强调有多鲜艳。
-- **站长侧**:默认主题、默认方案和预设色板都在 `src/config/theme.ts`。想用品牌色,在 `src/styles/tokens.css` 加一行 `[data-theme='brand'] { --seed: … }`;想做自己的方案,复制 tokens.css 末尾的模板块、改几个百分比,再到 `theme.ts` 注册,Dock 里就会自动出现按钮。
+- **读者侧**:Dock 的显示设置里有预设色板和色相、彩度、明度三条滑杆,挑一个颜色(大红、深蓝、整个色相环都行),整站立刻换装并记住选择。旁边的「配色方案」按钮(默认/着色/鲜明/柔和)决定颜色用得多重——纸面要不要带主题色、颜色的饱和度和强调有多强。
+- **站长侧**:默认主题、默认方案和预设色板都在 `src/config/theme.ts`。想用品牌色,在 `src/styles/tokens.css` 声明配方通道:`[data-theme='brand'] { --seed-recipe-l: …; --seed-recipe-c: …; --seed-recipe-h: …; }`,并加一枚对应的预设色板;想做自己的方案,复制 tokens.css 末尾的模板块、改几个百分比,再到 `theme.ts` 注册,Dock 里就会自动出现按钮。
 
 原理只有一句话:整个调色板由「纸、墨 + 一枚主题色」按同一套 `color-mix()` 配方推导,所以任何颜色、任何方案、明暗两种模式都自动协调,不会失调。
 

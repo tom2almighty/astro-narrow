@@ -30,7 +30,7 @@ pnpm astro check
 | ----------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
 | `src/config/site.ts`    | Site, author, and global features   | `contentWidth`, `nav`, `footerNav`, `home`, `list.pageSize`, `comments`, `analytics` |
 | `src/config/i18n.ts`    | Locales and display names           | `defaultLocale`, `locales`, `localeMeta`                                             |
-| `src/config/theme.ts`   | Default theme, schemes, presets     | `defaultTheme`, `defaultScheme`, `schemes`, `seedPresets`, `seedColor`               |
+| `src/config/theme.ts`   | Default theme, schemes, presets     | `defaultTheme`, `defaultScheme`, `schemes`, `seedPresets`, `seedColor`, `seedLimits` |
 | `src/content.config.ts` | Available frontmatter fields        | Update when adding or changing content fields                                        |
 | `src/styles/tokens.css` | Design tokens                       | Paper/ink axioms, theme seeds, mix recipe, Utopia type/space scales, `--radius`      |
 
@@ -121,8 +121,8 @@ links:
 
 Changing colors requires no color theory:
 
-- **Readers**: the Dock's display settings offer preset swatches and a custom hue slider — pick a color and the whole site recolors instantly and remembers the choice. The scheme buttons next to them (Plain / Tinted / Vivid / Soft) decide how boldly the color is used: whether the paper takes a subtle wash, how strong hovers and accents appear.
-- **Site owners**: the default theme, default scheme, and swatch presets live in `src/config/theme.ts`. For a brand color, add one line to `src/styles/tokens.css`: `[data-theme='brand'] { --seed: … }`. For your own scheme, copy the template block at the end of tokens.css, adjust a few percentages, and register it in `theme.ts` — the Dock button appears automatically.
+- **Readers**: the Dock's display settings offer preset swatches plus hue, chroma, and lightness sliders — pick any color (bright reds, deep blues, the whole hue circle) and the whole site recolors instantly and remembers the choice. The scheme buttons next to them (Plain / Tinted / Vivid / Soft) decide how boldly the color is used: whether the paper takes a wash, how saturated and strong hovers and accents appear.
+- **Site owners**: the default theme, default scheme, and swatch presets live in `src/config/theme.ts`. For a brand color, declare its recipe channels in `src/styles/tokens.css`: `[data-theme='brand'] { --seed-recipe-l: …; --seed-recipe-c: …; --seed-recipe-h: …; }` and add a matching swatch preset. For your own scheme, copy the template block at the end of tokens.css, adjust a few percentages, and register it in `theme.ts` — the Dock button appears automatically.
 
 The principle in one sentence: the entire palette is derived from paper, ink, and a single theme color through one shared `color-mix()` recipe, so every color, every scheme, and both light and dark mode stay in tune automatically.
 

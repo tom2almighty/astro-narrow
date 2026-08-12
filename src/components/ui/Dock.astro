@@ -2,7 +2,7 @@
 import { Icon } from 'astro-icon/components';
 import { getLocalePath, locales, localeMeta, switchLocalePath, type Locale } from '../../config/i18n';
 import { siteConfig } from '../../config/site';
-import { defaultScheme, schemes, seedColor, seedPresets } from '../../config/theme';
+import { defaultScheme, schemes, seedColor, seedLimits, seedPresets } from '../../config/theme';
 import { useTranslations } from '../../i18n/utils';
 
 interface Props {
@@ -22,8 +22,10 @@ const labels = {
   home: t('dock.home'),
   language: t('nav.language'),
   scheme: t('dock.scheme'),
+  seedChroma: t('dock.seedChroma'),
+  seedHue: t('dock.seedHue'),
+  seedLightness: t('dock.seedLightness'),
   theme: t('nav.theme'),
-  themeCustom: t('dock.theme.custom'),
   colorMode: t('nav.colorMode'),
   top: t('dock.top')
 };
@@ -34,6 +36,7 @@ const colorSchemes = [
 ] as const;
 const homeHref = getLocalePath(locale, '/');
 const currentPath = Astro.url.pathname;
+const inkSeed = seedPresets[0];
 const parsedContentWidth = /^\d+(?:\.\d+)?rem$/.test(siteConfig.contentWidth)
   ? Number.parseFloat(siteConfig.contentWidth)
   : 56;
@@ -71,7 +74,7 @@ const maximumContentWidth = Math.ceil(defaultContentWidth + 24);
           {colorSchemes.map((scheme) => (
             <button
               type="button"
-              data-color-scheme={scheme.value}
+              data-color-mode={scheme.value}
               aria-pressed="false"
               class="flex cursor-pointer items-center justify-center gap-1.5 rounded-xs px-2 py-1.5 text-xs font-medium text-fg-muted transition-colors hover:bg-hover hover:text-fg aria-pressed:bg-accent aria-pressed:text-accent-contrast aria-pressed:hover:bg-accent aria-pressed:hover:text-accent-contrast focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
@@ -91,26 +94,62 @@ const maximumContentWidth = Math.ceil(defaultContentWidth + 24);
             {seedPresets.map((preset) => (
               <button
                 type="button"
-                data-seed-preset={preset.hue ?? ''}
-                aria-pressed={preset.hue === null ? 'true' : 'false'}
-                aria-label={preset.name}
-                title={preset.name}
+                data-seed-preset={preset.id}
+                aria-pressed="false"
+                aria-label={preset.name[locale]}
+                title={preset.name[locale]}
                 class="h-6 w-6 cursor-pointer rounded-full border border-border transition-shadow aria-pressed:ring-2 aria-pressed:ring-accent aria-pressed:ring-offset-2 aria-pressed:ring-offset-canvas focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                style={preset.hue === null ? 'background: var(--ink)' : `background: ${seedColor(preset.hue)}`}
+                style={`background: ${seedColor(preset)}`}
               ></button>
             ))}
           </div>
-          <input
-            data-seed-hue
-            type="range"
-            min="0"
-            max="359"
-            step="1"
-            value="275"
-            class="hue-slider w-full"
-            aria-label={labels.themeCustom}
-            title={labels.themeCustom}
-          />
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <label for="seed-hue" class="w-14 shrink-0 text-xs font-medium text-fg-muted">{labels.seedHue}</label>
+              <input
+                id="seed-hue"
+                data-seed-h
+                type="range"
+                min={seedLimits.hue.min}
+                max={seedLimits.hue.max}
+                step="1"
+                value={inkSeed.h}
+                class="seed-slider min-w-0 flex-1"
+                aria-label={labels.seedHue}
+              />
+              <output data-seed-h-output for="seed-hue" class="w-12 shrink-0 text-right text-xs tabular-nums text-fg-muted">{Math.round(inkSeed.h)}°</output>
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="seed-chroma" class="w-14 shrink-0 text-xs font-medium text-fg-muted">{labels.seedChroma}</label>
+              <input
+                id="seed-chroma"
+                data-seed-c
+                type="range"
+                min={seedLimits.chroma.min}
+                max={seedLimits.chroma.max}
+                step="0.01"
+                value={inkSeed.c}
+                class="seed-slider min-w-0 flex-1"
+                aria-label={labels.seedChroma}
+              />
+              <output data-seed-c-output for="seed-chroma" class="w-12 shrink-0 text-right text-xs tabular-nums text-fg-muted">{inkSeed.c.toFixed(2)}</output>
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="seed-lightness" class="w-14 shrink-0 text-xs font-medium text-fg-muted">{labels.seedLightness}</label>
+              <input
+                id="seed-lightness"
+                data-seed-l
+                type="range"
+                min={seedLimits.lightness.min}
+                max={seedLimits.lightness.max}
+                step="0.01"
+                value={inkSeed.l}
+                class="seed-slider min-w-0 flex-1"
+                aria-label={labels.seedLightness}
+              />
+              <output data-seed-l-output for="seed-lightness" class="w-12 shrink-0 text-right text-xs tabular-nums text-fg-muted">{Math.round(inkSeed.l * 100)}%</output>
+            </div>
+          </div>
         </div>
         <div class="space-y-1">
           <span class="text-xs font-medium text-fg-muted">{labels.scheme}</span>
