@@ -42,13 +42,16 @@ function applyContentWidth(value: number) {
   if (contentWidthOutput) contentWidthOutput.value = width;
   document.documentElement.style.setProperty('--layout-content-width', width);
   if (contentWidthReset) contentWidthReset.disabled = clamped === defaultWidth;
-
 }
 
 if (contentWidthInput) {
-  const storedWidth = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--layout-content-width'));
+  const storedWidth = Number.parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--layout-content-width')
+  );
   applyContentWidth(storedWidth);
-  contentWidthInput.addEventListener('input', () => applyContentWidth(Number(contentWidthInput.value)));
+  contentWidthInput.addEventListener('input', () =>
+    applyContentWidth(Number(contentWidthInput.value))
+  );
   contentWidthInput.addEventListener('change', () => {
     const value = Number(contentWidthInput.value);
     const defaultWidth = Number(contentWidthInput.dataset.defaultWidth);

@@ -8,7 +8,9 @@ import { sortProjects } from '../../../lib/content/projects';
 import { useTranslations } from '../../../i18n/utils';
 
 export function getStaticPaths() {
-  return locales.filter((locale) => locale !== defaultLocale).map((locale) => ({ params: { locale } }));
+  return locales
+    .filter((locale) => locale !== defaultLocale)
+    .map((locale) => ({ params: { locale } }));
 }
 
 const locale = Astro.params.locale as Locale;

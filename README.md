@@ -26,13 +26,13 @@ pnpm astro check
 
 ## Main Config Files
 
-| File                    | Purpose                             | Common options                                                                       |
-| ----------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
-| `src/config/site.ts`    | Site, author, and global features   | `contentWidth`, `nav`, `footerNav`, `home`, `list.pageSize`, `comments`, `analytics` |
-| `src/config/i18n.ts`    | Locales and display names           | `defaultLocale`, `locales`, `localeMeta`                                             |
-| `src/config/theme.ts`   | Default theme, schemes, presets     | `defaultTheme`, `defaultScheme`, `schemes`, `seedPresets`, `seedColor`, `seedLimits` |
-| `src/content.config.ts` | Available frontmatter fields        | Update when adding or changing content fields                                        |
-| `src/styles/tokens.css` | Design tokens                       | Paper/ink axioms, theme seeds, mix recipe, Utopia type/space scales, `--radius`      |
+| File                    | Purpose                           | Common options                                                                       |
+| ----------------------- | --------------------------------- | ------------------------------------------------------------------------------------ |
+| `src/config/site.ts`    | Site, author, and global features | `contentWidth`, `nav`, `footerNav`, `home`, `list.pageSize`, `comments`, `analytics` |
+| `src/config/i18n.ts`    | Locales and display names         | `defaultLocale`, `locales`, `localeMeta`                                             |
+| `src/config/theme.ts`   | Default theme, schemes, presets   | `defaultTheme`, `defaultScheme`, `schemes`, `seedPresets`, `seedColor`, `seedLimits` |
+| `src/content.config.ts` | Available frontmatter fields      | Update when adding or changing content fields                                        |
+| `src/styles/tokens.css` | Design tokens                     | Paper/ink axioms, theme seeds, mix recipe, Utopia type/space scales, `--radius`      |
 
 When adding a locale, also update `i18n.locales` in `astro.config.mjs` and the allowed `lang` values in `src/content.config.ts`.
 
@@ -107,8 +107,8 @@ Projects are frontmatter-only link cards rendered in a three-column grid — no 
 
 ```yaml
 ---
-title: "Astro Narrow"
-description: "An Astro-native content theme."
+title: 'Astro Narrow'
+description: 'An Astro-native content theme.'
 tags: [Astro]
 order: 1
 links:

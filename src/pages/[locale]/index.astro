@@ -6,7 +6,9 @@ import { siteConfig } from '../../config/site';
 import { excludeSubposts, getLocalizedEntries } from '../../lib/content/entries';
 
 export function getStaticPaths() {
-  return locales.filter((locale) => locale !== defaultLocale).map((locale) => ({ params: { locale } }));
+  return locales
+    .filter((locale) => locale !== defaultLocale)
+    .map((locale) => ({ params: { locale } }));
 }
 
 const locale = Astro.params.locale as Locale;

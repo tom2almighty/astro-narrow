@@ -10,9 +10,10 @@ pnpm dev            # dev server
 pnpm build          # static build to dist/
 pnpm preview        # serve the build
 pnpm astro check    # type-check (.astro + .ts) — the closest thing to a test suite; run before committing
+pnpm format         # Prettier --write (prettier-plugin-astro + tailwindcss class sorting); format:check to verify
 ```
 
-There is no lint or unit-test setup. `ASTRO_SITE` / `ASTRO_BASE` env vars set `site`/`base` at build time (used by the GitHub Pages workflow in `.github/workflows/deploy.yml`).
+There is no lint or unit-test setup. Formatting is Prettier (`.prettierrc.mjs`, options mirror the pre-existing style); `src/content/` is deliberately excluded (`.prettierignore`) so Markdown directives/KaTeX in entries stay untouched. `ASTRO_SITE` / `ASTRO_BASE` env vars set `site`/`base` at build time (used by the GitHub Pages workflow in `.github/workflows/deploy.yml`).
 
 ## What this is
 

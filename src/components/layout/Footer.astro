@@ -14,35 +14,43 @@ const navigation = getFooterNavigation(locale);
 ---
 
 <footer class="mt-16 py-8 text-step--1 text-fg-muted">
-  {navigation.length > 0 && (
-    <nav class="mb-6" aria-label="Footer">
-      <div class="flex flex-wrap items-center justify-center gap-1">
-        {navigation.map((item) => (
-          <a
-            href={item.href}
-            class="footer-nav-link"
-            target={item.external ? '_blank' : undefined}
-            rel={item.external ? 'noopener noreferrer' : undefined}
-          >
-            {item.icon && <Icon name={item.icon} class="h-4 w-4" />}
-            <span>{item.label}</span>
-            {item.external && <Icon name="lucide:arrow-up-right" class="h-3 w-3" />}
-          </a>
-        ))}
-      </div>
-    </nav>
-  )}
+  {
+    navigation.length > 0 && (
+      <nav class="mb-6" aria-label="Footer">
+        <div class="flex flex-wrap items-center justify-center gap-1">
+          {navigation.map((item) => (
+            <a
+              href={item.href}
+              class="footer-nav-link"
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
+            >
+              {item.icon && <Icon name={item.icon} class="h-4 w-4" />}
+              <span>{item.label}</span>
+              {item.external && <Icon name="lucide:arrow-up-right" class="h-3 w-3" />}
+            </a>
+          ))}
+        </div>
+      </nav>
+    )
+  }
 
   <div class="mb-6 border-t border-border"></div>
 
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <p>© {year} {siteConfig.author.name}</p>
     <div class="flex items-center gap-2">
-      {siteConfig.author.social.map((item) => (
-        <a class="grid h-9 w-9 place-items-center rounded-base transition-colors duration-200 hover:bg-hover hover:text-fg" href={item.url} aria-label={item.name}>
-          <Icon name={item.icon} class="h-4 w-4" />
-        </a>
-      ))}
+      {
+        siteConfig.author.social.map((item) => (
+          <a
+            class="grid h-9 w-9 place-items-center rounded-base transition-colors duration-200 hover:bg-hover hover:text-fg"
+            href={item.url}
+            aria-label={item.name}
+          >
+            <Icon name={item.icon} class="h-4 w-4" />
+          </a>
+        ))
+      }
     </div>
   </div>
 </footer>

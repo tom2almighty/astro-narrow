@@ -1,7 +1,9 @@
 const roots = [...document.querySelectorAll<HTMLElement>('[data-toc-root]')];
 
 if (roots.length > 0) {
-  const links = roots.flatMap((root) => [...root.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')]);
+  const links = roots.flatMap((root) => [
+    ...root.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')
+  ]);
   const titles = [...document.querySelectorAll<HTMLElement>('[data-toc-title]')];
 
   const headingId = (link: HTMLAnchorElement) => decodeURIComponent(link.hash.slice(1));
@@ -62,7 +64,9 @@ if (roots.length > 0) {
         closeTimer = window.setTimeout(close, 120);
       });
     }
-    dropdown.querySelectorAll('[data-toc-link]').forEach((link) => link.addEventListener('click', close));
+    dropdown
+      .querySelectorAll('[data-toc-link]')
+      .forEach((link) => link.addEventListener('click', close));
     document.addEventListener('click', (event) => {
       if (isOpen() && !root.contains(event.target as Node)) close();
     });

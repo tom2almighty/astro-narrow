@@ -5,11 +5,17 @@ import PageHeader from '../../../components/content/PageHeader.astro';
 import Pagination from '../../../components/ui/Pagination.astro';
 import { defaultLocale, locales, type Locale } from '../../../config/i18n';
 import { siteConfig } from '../../../config/site';
-import { excludeSubposts, getLocalizedEntries, paginateEntries } from '../../../lib/content/entries';
+import {
+  excludeSubposts,
+  getLocalizedEntries,
+  paginateEntries
+} from '../../../lib/content/entries';
 import { useTranslations } from '../../../i18n/utils';
 
 export function getStaticPaths() {
-  return locales.filter((locale) => locale !== defaultLocale).map((locale) => ({ params: { locale } }));
+  return locales
+    .filter((locale) => locale !== defaultLocale)
+    .map((locale) => ({ params: { locale } }));
 }
 
 const locale = Astro.params.locale as Locale;

@@ -1,11 +1,13 @@
 import { getLocalePath, type Locale } from './i18n';
 import { siteConfig } from './site';
 
-export type NavigationConfigItem = string | {
-  label: string | Record<Locale, string>;
-  href: string;
-  icon?: string;
-};
+export type NavigationConfigItem =
+  | string
+  | {
+      label: string | Record<Locale, string>;
+      href: string;
+      icon?: string;
+    };
 
 export type NavigationItem = {
   href: string;
@@ -31,11 +33,14 @@ const routeRegistry = {
     href: '/archives/',
     icon: 'lucide:archive'
   }
-} satisfies Record<string, {
-  label: Record<Locale, string>;
-  href: string;
-  icon: string;
-}>;
+} satisfies Record<
+  string,
+  {
+    label: Record<Locale, string>;
+    href: string;
+    icon: string;
+  }
+>;
 
 export type RouteId = keyof typeof routeRegistry;
 
@@ -57,7 +62,10 @@ function resolveLabel(locale: Locale, label: string | Record<Locale, string>) {
   return typeof label === 'string' ? label : label[locale];
 }
 
-export function getNavigation(locale: Locale, items: NavigationConfigItem[] = siteConfig.nav): NavigationItem[] {
+export function getNavigation(
+  locale: Locale,
+  items: NavigationConfigItem[] = siteConfig.nav
+): NavigationItem[] {
   return items
     .map(resolveNavigationItem)
     .filter((item): item is NonNullable<typeof item> => Boolean(item))

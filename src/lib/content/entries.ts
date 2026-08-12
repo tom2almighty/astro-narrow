@@ -1,5 +1,11 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { getLocaleFromId, getLocalePath, localeMeta, stripLocaleFromId, type Locale } from '../../config/i18n';
+import {
+  getLocaleFromId,
+  getLocalePath,
+  localeMeta,
+  stripLocaleFromId,
+  type Locale
+} from '../../config/i18n';
 
 export type ContentType = 'posts' | 'projects' | 'pages';
 
@@ -26,10 +32,17 @@ export async function getLocalizedEntries<T extends ContentType>(collection: T, 
   const entries = await getCollection(collection, ({ data }) => !data.draft);
   return entries
     .filter((entry) => entryLocale(entry as CollectionEntry<ContentType>) === locale)
-    .sort((a, b) => entryDate(b as CollectionEntry<ContentType>).getTime() - entryDate(a as CollectionEntry<ContentType>).getTime());
+    .sort(
+      (a, b) =>
+        entryDate(b as CollectionEntry<ContentType>).getTime() -
+        entryDate(a as CollectionEntry<ContentType>).getTime()
+    );
 }
 
-export function localizedEntryPath(collection: 'posts' | 'pages', entry: CollectionEntry<'posts'> | CollectionEntry<'pages'>) {
+export function localizedEntryPath(
+  collection: 'posts' | 'pages',
+  entry: CollectionEntry<'posts'> | CollectionEntry<'pages'>
+) {
   const slug = entrySlug(entry);
   const locale = entryLocale(entry);
   const base = collection === 'pages' ? '' : `/${collection}`;
@@ -91,7 +104,9 @@ export function relatedPosts(posts: Post[], current: Post, limit = 3) {
       return { entry, score };
     })
     .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || entryDate(b.entry).getTime() - entryDate(a.entry).getTime())
+    .sort(
+      (a, b) => b.score - a.score || entryDate(b.entry).getTime() - entryDate(a.entry).getTime()
+    )
     .slice(0, limit)
     .map((item) => item.entry);
 }
@@ -160,9 +175,9 @@ function findParent(entry: Post, parents: Map<string, Post>) {
 function subpostOrder(a: Post, b: Post) {
   const orderA = a.data.order ?? Number.POSITIVE_INFINITY;
   const orderB = b.data.order ?? Number.POSITIVE_INFINITY;
-  return orderA - orderB
-    || entryDate(a).getTime() - entryDate(b).getTime()
-    || a.id.localeCompare(b.id);
+  return (
+    orderA - orderB || entryDate(a).getTime() - entryDate(b).getTime() || a.id.localeCompare(b.id)
+  );
 }
 
 /** 依据文件夹结构把 posts 分组为系列。 */

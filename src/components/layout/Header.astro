@@ -1,6 +1,12 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { getLocalePath, localeMeta, locales, switchLocalePath, type Locale } from '../../config/i18n';
+import {
+  getLocalePath,
+  localeMeta,
+  locales,
+  switchLocalePath,
+  type Locale
+} from '../../config/i18n';
 import { getNavigation } from '../../config/navigation';
 import { siteConfig } from '../../config/site';
 import { useTranslations } from '../../i18n/utils';
@@ -25,20 +31,96 @@ function isActive(item: { href: string; external: boolean }) {
 <header class:list={[headerClass, 'z-30 mt-5 mb-6']}>
   <div class="nav-shell flex min-h-16 items-center justify-between gap-3 border px-4">
     <a href={getLocalePath(locale, '/')} class="flex min-w-0 items-center gap-2 font-semibold">
-      <span class="grid h-8 w-8 shrink-0 place-items-center rounded-base bg-accent text-accent-contrast">
+      <span
+        class="grid h-8 w-8 shrink-0 place-items-center rounded-base bg-accent text-accent-contrast"
+      >
         {siteConfig.name.slice(0, 1)}
       </span>
       <span class="truncate">{siteConfig.name}</span>
     </a>
 
     <nav class="hidden items-center gap-1 md:flex" aria-label="Primary">
-      {navigation.map((item) => (
+      {
+        navigation.map((item) => (
+          <a
+            class:list={[
+              'nav-item inline-flex items-center gap-1.5 rounded-base px-3 py-2 text-step--1 transition-colors duration-200',
+              isActive(item) ? 'bg-hover text-fg' : 'text-fg-muted hover:bg-hover hover:text-fg'
+            ]}
+            href={item.href}
+            target={item.external ? '_blank' : undefined}
+            rel={item.external ? 'noopener noreferrer' : undefined}
+          >
+            {item.icon && <Icon name={item.icon} class="h-4 w-4" />}
+            {item.label}
+            {item.external && <Icon name="lucide:arrow-up-right" class="h-3 w-3 text-fg-muted" />}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="flex shrink-0 items-center gap-1">
+      <button
+        type="button"
+        data-search-open
+        class="grid h-9 w-9 place-items-center rounded-base text-fg-muted transition-colors hover:bg-hover hover:text-fg"
+        aria-label={t('nav.search')}
+        title={t('nav.search')}
+      >
+        <Icon name="lucide:search" class="h-4 w-4" />
+      </button>
+      {
+        locales.length > 1 && (
+          <div class="relative">
+            <button
+              type="button"
+              data-lang-menu
+              aria-expanded="false"
+              class="grid h-9 w-9 place-items-center rounded-base text-fg-muted transition-colors hover:bg-hover hover:text-fg"
+              aria-label={t('nav.language')}
+              title={t('nav.language')}
+            >
+              <Icon name="lucide:languages" class="h-4 w-4" />
+            </button>
+            <div
+              data-lang-panel
+              class="glass absolute top-full right-0 mt-2 hidden w-36 rounded-base border border-border p-1 text-sm"
+            >
+              {locales.map((item) => (
+                <a
+                  href={switchLocalePath(item, currentPath)}
+                  class="block rounded px-2 py-1.5 hover:bg-hover"
+                  aria-current={item === locale ? 'page' : undefined}
+                >
+                  {localeMeta[item].label}
+                </a>
+              ))}
+            </div>
+          </div>
+        )
+      }
+      <button
+        type="button"
+        data-mobile-menu
+        aria-expanded="false"
+        class="grid h-9 w-9 place-items-center rounded-base transition-colors hover:bg-hover md:hidden"
+        aria-label={t('nav.menu')}
+      >
+        <Icon name="lucide:menu" class="h-4 w-4" />
+      </button>
+    </div>
+  </div>
+  <nav
+    data-mobile-panel
+    class="glass mt-2 hidden rounded-base border border-border p-2 md:hidden"
+    aria-label="Mobile primary"
+  >
+    {
+      navigation.map((item) => (
         <a
           class:list={[
-            'nav-item inline-flex items-center gap-1.5 rounded-base px-3 py-2 text-step--1 transition-colors duration-200',
-            isActive(item)
-              ? 'bg-hover text-fg'
-              : 'text-fg-muted hover:bg-hover hover:text-fg'
+            'flex items-center gap-2 rounded-base px-3 py-2 text-step--1',
+            isActive(item) ? 'bg-hover text-fg' : 'text-fg-muted hover:bg-hover hover:text-fg'
           ]}
           href={item.href}
           target={item.external ? '_blank' : undefined}
@@ -48,44 +130,7 @@ function isActive(item: { href: string; external: boolean }) {
           {item.label}
           {item.external && <Icon name="lucide:arrow-up-right" class="h-3 w-3 text-fg-muted" />}
         </a>
-      ))}
-    </nav>
-
-    <div class="flex shrink-0 items-center gap-1">
-      <button type="button" data-search-open class="grid h-9 w-9 place-items-center rounded-base text-fg-muted transition-colors hover:bg-hover hover:text-fg" aria-label={t('nav.search')} title={t('nav.search')}>
-        <Icon name="lucide:search" class="h-4 w-4" />
-      </button>
-      {locales.length > 1 && (
-        <div class="relative">
-          <button type="button" data-lang-menu aria-expanded="false" class="grid h-9 w-9 place-items-center rounded-base text-fg-muted transition-colors hover:bg-hover hover:text-fg" aria-label={t('nav.language')} title={t('nav.language')}>
-            <Icon name="lucide:languages" class="h-4 w-4" />
-          </button>
-          <div data-lang-panel class="absolute top-full right-0 mt-2 hidden w-36 rounded-base border border-border glass p-1 text-sm">
-            {locales.map((item) => (
-              <a href={switchLocalePath(item, currentPath)} class="block rounded px-2 py-1.5 hover:bg-hover" aria-current={item === locale ? 'page' : undefined}>
-                {localeMeta[item].label}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-      <button type="button" data-mobile-menu aria-expanded="false" class="grid h-9 w-9 place-items-center rounded-base transition-colors hover:bg-hover md:hidden" aria-label={t('nav.menu')}>
-        <Icon name="lucide:menu" class="h-4 w-4" />
-      </button>
-    </div>
-  </div>
-  <nav data-mobile-panel class="mt-2 hidden rounded-base border border-border glass p-2 md:hidden" aria-label="Mobile primary">
-    {navigation.map((item) => (
-      <a
-        class:list={['flex items-center gap-2 rounded-base px-3 py-2 text-step--1', isActive(item) ? 'bg-hover text-fg' : 'text-fg-muted hover:bg-hover hover:text-fg']}
-        href={item.href}
-        target={item.external ? '_blank' : undefined}
-        rel={item.external ? 'noopener noreferrer' : undefined}
-      >
-        {item.icon && <Icon name={item.icon} class="h-4 w-4" />}
-        {item.label}
-        {item.external && <Icon name="lucide:arrow-up-right" class="h-3 w-3 text-fg-muted" />}
-      </a>
-    ))}
+      ))
+    }
   </nav>
 </header>

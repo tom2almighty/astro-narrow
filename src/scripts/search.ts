@@ -60,11 +60,14 @@ async function ensureIndex() {
   }
   const data = await indexPromise;
   if (!fuse) {
-    fuse = new Fuse(data.filter((item) => item.lang === locale), {
-      keys: ['title', 'description', 'tags', 'content'],
-      threshold: 0.35,
-      ignoreLocation: true
-    });
+    fuse = new Fuse(
+      data.filter((item) => item.lang === locale),
+      {
+        keys: ['title', 'description', 'tags', 'content'],
+        threshold: 0.35,
+        ignoreLocation: true
+      }
+    );
   }
   hide(loading);
   show(empty);

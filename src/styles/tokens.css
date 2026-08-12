@@ -104,11 +104,11 @@
    * Defaults reproduce the shipped look. Contrast-critical mixes (border,
    * fg, fg-muted) are deliberately not exposed.
    */
-  --scheme-chroma: 1;          /* how much of the seed's chroma is used */
-  --scheme-wash: 2.5%;         /* seed wash in the canvas */
-  --scheme-hover: 10%;         /* accent-text share in hover surfaces */
-  --scheme-text-c: 1;          /* chroma of accent text (1 = the seed's own) */
-  --scheme-accent-veil: 88%;   /* transparency of accent washes */
+  --scheme-chroma: 1; /* how much of the seed's chroma is used */
+  --scheme-wash: 2.5%; /* seed wash in the canvas */
+  --scheme-hover: 10%; /* accent-text share in hover surfaces */
+  --scheme-text-c: 1; /* chroma of accent text (1 = the seed's own) */
+  --scheme-accent-veil: 88%; /* transparency of accent washes */
 
   /* Surfaces */
   --canvas: color-mix(in oklch, var(--paper), var(--seed) var(--scheme-wash));
@@ -125,7 +125,11 @@
 
   /* Accent washes (selection, marks, active TOC, reading progress). */
   --accent-bg: color-mix(in oklch, var(--accent-text), transparent var(--scheme-accent-veil));
-  --accent-bg-hover: color-mix(in oklch, var(--accent-text), transparent calc(var(--scheme-accent-veil) - 8%));
+  --accent-bg-hover: color-mix(
+    in oklch,
+    var(--accent-text),
+    transparent calc(var(--scheme-accent-veil) - 8%)
+  );
 
   /* Alerts: five fixed seeds run through the same recipe. */
   --note-seed: oklch(60% 0.14 245);
@@ -151,7 +155,9 @@
   --ink: oklch(92.5% 0.004 95);
   /* Accent text lifts toward paper (Radix step-11, dark) — with a floor so
      even deep blue/violet seeds keep readable links on the dark canvas. */
-  --accent-text: oklch(from var(--seed) min(1, max(0.72, calc(l + 0.35))) calc(c * var(--scheme-text-c)) h);
+  --accent-text: oklch(
+    from var(--seed) min(1, max(0.72, calc(l + 0.35))) calc(c * var(--scheme-text-c)) h
+  );
 }
 
 /*

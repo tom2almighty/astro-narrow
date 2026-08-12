@@ -37,23 +37,38 @@ const filtered = headings
 const hasPanel = filtered.length > 0 || Boolean(series);
 ---
 
-{hasPanel && (position === 'center' ? (
-  <TocCapsule headings={filtered} series={series} />
-) : (
-  <>
-    {/* Below xl the side rail has no room; fall back to the capsule. */}
-    <TocCapsule headings={filtered} series={series} class="xl:hidden" />
-    <aside data-toc-root class="fixed top-24 right-4 z-30 hidden xl:block">
-      <div class="group relative flex items-center justify-end">
-        <div data-toc-bars class="flex flex-col items-end gap-1 transition-opacity duration-150 group-hover:pointer-events-none group-hover:opacity-0">
-          {filtered.map((heading) => (
-            <a href={`#${heading.slug}`} data-toc-link class="toc-bar block h-1 rounded-l-full bg-muted transition-all hover:bg-accent" style={`width: ${Math.max(0.4, 1.15 - (heading.depth - 2) * 0.22)}rem`} aria-label={heading.text}></a>
-          ))}
-        </div>
-        <nav data-toc-panel class="absolute right-0 top-0 hidden max-h-[70vh] w-64 overflow-auto rounded-base border border-border glass p-2 text-step--1 group-hover:block">
-          <TocPanel headings={filtered} series={series} />
-        </nav>
-      </div>
-    </aside>
-  </>
-))}
+{
+  hasPanel &&
+    (position === 'center' ? (
+      <TocCapsule headings={filtered} series={series} />
+    ) : (
+      <>
+        {/* Below xl the side rail has no room; fall back to the capsule. */}
+        <TocCapsule headings={filtered} series={series} class="xl:hidden" />
+        <aside data-toc-root class="fixed top-24 right-4 z-30 hidden xl:block">
+          <div class="group relative flex items-center justify-end">
+            <div
+              data-toc-bars
+              class="flex flex-col items-end gap-1 transition-opacity duration-150 group-hover:pointer-events-none group-hover:opacity-0"
+            >
+              {filtered.map((heading) => (
+                <a
+                  href={`#${heading.slug}`}
+                  data-toc-link
+                  class="toc-bar block h-1 rounded-l-full bg-muted transition-all hover:bg-accent"
+                  style={`width: ${Math.max(0.4, 1.15 - (heading.depth - 2) * 0.22)}rem`}
+                  aria-label={heading.text}
+                />
+              ))}
+            </div>
+            <nav
+              data-toc-panel
+              class="glass absolute top-0 right-0 hidden max-h-[70vh] w-64 overflow-auto rounded-base border border-border p-2 text-step--1 group-hover:block"
+            >
+              <TocPanel headings={filtered} series={series} />
+            </nav>
+          </div>
+        </aside>
+      </>
+    ))
+}

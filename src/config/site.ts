@@ -87,7 +87,8 @@ export const siteConfig = {
       enabled: true,
       name: 'CC BY-NC-SA 4.0',
       url: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
-      description: 'This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.'
+      description:
+        'This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.'
     }
   }
 } satisfies {
@@ -111,7 +112,9 @@ export const siteConfig = {
     };
   };
   nav: Array<string | { label: string | Record<Locale, string>; href: string; icon?: string }>;
-  footerNav: Array<string | { label: string | Record<Locale, string>; href: string; icon?: string }>;
+  footerNav: Array<
+    string | { label: string | Record<Locale, string>; href: string; icon?: string }
+  >;
   home: {
     recentPosts: { enabled: boolean; limit: number };
   };

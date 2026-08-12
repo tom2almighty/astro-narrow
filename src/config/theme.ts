@@ -23,16 +23,17 @@ export const seedColor = (seed: SeedRecipe) => `oklch(${seed.l} ${seed.c} ${seed
 
 /* Preset swatches shown in the Dock. `ink` is the monochrome default and the
    only preset whose seed is tuned near-black. */
-export const seedPresets: ReadonlyArray<SeedRecipe & { id: string; name: Record<Locale, string> }> = [
-  { id: 'ink',    name: { en: 'Ink',    'zh-cn': '墨' },   l: 0.3,  c: 0.01, h: 285 },
-  { id: 'red',    name: { en: 'Red',    'zh-cn': '红' },   l: 0.58, c: 0.22, h: 26 },
-  { id: 'rose',   name: { en: 'Rose',   'zh-cn': '玫红' }, l: 0.69, c: 0.19, h: 352 },
-  { id: 'amber',  name: { en: 'Amber',  'zh-cn': '琥珀' }, l: 0.67, c: 0.16, h: 58 },
-  { id: 'grass',  name: { en: 'Grass',  'zh-cn': '草绿' }, l: 0.65, c: 0.15, h: 147 },
-  { id: 'teal',   name: { en: 'Teal',   'zh-cn': '青' },   l: 0.65, c: 0.11, h: 182 },
-  { id: 'blue',   name: { en: 'Blue',   'zh-cn': '蓝' },   l: 0.56, c: 0.21, h: 258 },
-  { id: 'violet', name: { en: 'Violet', 'zh-cn': '紫' },   l: 0.54, c: 0.18, h: 288 }
-] as const;
+export const seedPresets: ReadonlyArray<SeedRecipe & { id: string; name: Record<Locale, string> }> =
+  [
+    { id: 'ink', name: { en: 'Ink', 'zh-cn': '墨' }, l: 0.3, c: 0.01, h: 285 },
+    { id: 'red', name: { en: 'Red', 'zh-cn': '红' }, l: 0.58, c: 0.22, h: 26 },
+    { id: 'rose', name: { en: 'Rose', 'zh-cn': '玫红' }, l: 0.69, c: 0.19, h: 352 },
+    { id: 'amber', name: { en: 'Amber', 'zh-cn': '琥珀' }, l: 0.67, c: 0.16, h: 58 },
+    { id: 'grass', name: { en: 'Grass', 'zh-cn': '草绿' }, l: 0.65, c: 0.15, h: 147 },
+    { id: 'teal', name: { en: 'Teal', 'zh-cn': '青' }, l: 0.65, c: 0.11, h: 182 },
+    { id: 'blue', name: { en: 'Blue', 'zh-cn': '蓝' }, l: 0.56, c: 0.21, h: 258 },
+    { id: 'violet', name: { en: 'Violet', 'zh-cn': '紫' }, l: 0.54, c: 0.18, h: 288 }
+  ] as const;
 
 /* The monochrome recipe used when no custom seed is stored. */
 export const inkSeed: SeedRecipe = seedPresets[0];

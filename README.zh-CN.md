@@ -107,8 +107,8 @@ src/content/posts/zh-cn/astro-guide/
 
 ```yaml
 ---
-title: "Astro Narrow"
-description: "一个 Astro-native 内容主题。"
+title: 'Astro Narrow'
+description: '一个 Astro-native 内容主题。'
 tags: [Astro]
 order: 1
 links:

@@ -9,6 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "astro": "astro"
   },
   "dependencies": {
@@ -21,6 +23,7 @@
     "astro-expressive-code": "^0.44.0",
     "astro-icon": "^1.1.5",
     "fuse.js": "^7.4.2",
+    "katex": "^0.16.47",
     "mermaid": "^11.16.0",
     "rehype-katex": "^7.0.1",
     "remark-directive": "^4.0.0",
@@ -31,6 +34,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "^6.0.3"
   }
 }

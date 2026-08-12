@@ -23,7 +23,10 @@ function setupArchiveFilters(root: HTMLElement) {
 
   function applyState(tag: string) {
     for (const button of buttons) {
-      button.setAttribute('aria-pressed', String((button.dataset.archiveFilterValue || '') === tag));
+      button.setAttribute(
+        'aria-pressed',
+        String((button.dataset.archiveFilterValue || '') === tag)
+      );
     }
 
     let visibleCount = 0;

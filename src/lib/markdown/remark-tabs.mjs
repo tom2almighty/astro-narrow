@@ -8,7 +8,9 @@ function textFrom(node) {
 
 function tabTitle(node, index) {
   const attrs = node.attributes || {};
-  return String(attrs.title || attrs.label || textFrom(node.children?.[0]).trim() || `Tab ${index + 1}`);
+  return String(
+    attrs.title || attrs.label || textFrom(node.children?.[0]).trim() || `Tab ${index + 1}`
+  );
 }
 
 function htmlProps(className, extra = {}) {
@@ -20,7 +22,9 @@ export function remarkTabs() {
     visit(tree, 'containerDirective', (node, index, parent) => {
       if (!parent || node.name !== 'tabs') return;
 
-      const tabNodes = (node.children || []).filter((child) => child.type === 'containerDirective' && child.name === 'tab');
+      const tabNodes = (node.children || []).filter(
+        (child) => child.type === 'containerDirective' && child.name === 'tab'
+      );
       if (tabNodes.length === 0) return;
 
       const groupId = `markdown-tabs-${index || 0}`;
@@ -36,12 +40,14 @@ export function remarkTabs() {
       node.children = [
         {
           type: 'html',
-          value: `<div class="tabs-nav-shell"><div class="tabs-nav" role="tablist" aria-label="Content tabs">${labels.map((label, tabIndex) => {
-            const selected = tabIndex === 0 ? 'true' : 'false';
-            const tabId = `${groupId}-tab-${tabIndex}`;
-            const panelId = `${groupId}-panel-${tabIndex}`;
-            return `<button class="tabs-trigger" type="button" role="tab" id="${tabId}" aria-selected="${selected}" aria-controls="${panelId}" tabindex="${tabIndex === 0 ? '0' : '-1'}">${label}</button>`;
-          }).join('')}</div></div>`
+          value: `<div class="tabs-nav-shell"><div class="tabs-nav" role="tablist" aria-label="Content tabs">${labels
+            .map((label, tabIndex) => {
+              const selected = tabIndex === 0 ? 'true' : 'false';
+              const tabId = `${groupId}-tab-${tabIndex}`;
+              const panelId = `${groupId}-panel-${tabIndex}`;
+              return `<button class="tabs-trigger" type="button" role="tab" id="${tabId}" aria-selected="${selected}" aria-controls="${panelId}" tabindex="${tabIndex === 0 ? '0' : '-1'}">${label}</button>`;
+            })
+            .join('')}</div></div>`
         },
         {
           type: 'containerDirective',

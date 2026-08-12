@@ -1,4 +1,8 @@
-import SmartGallery, { type GalleryItemId, type GalleryItemInput, type GalleryLayout } from 'smart-gallery';
+import SmartGallery, {
+  type GalleryItemId,
+  type GalleryItemInput,
+  type GalleryLayout
+} from 'smart-gallery';
 import { siteConfig } from '../config/site';
 
 type LightboxItem = { id: GalleryItemId; src: string; alt: string; caption: string };
@@ -7,15 +11,16 @@ type Layout = GalleryLayout;
 
 const cfg = siteConfig.gallery as Record<string, any>;
 const LAYOUTS: Layout[] = ['justified', 'masonry', 'grid'];
-const DEFAULT_LAYOUT: Layout = LAYOUTS.includes(cfg.defaultLayout) ? cfg.defaultLayout : 'justified';
+const DEFAULT_LAYOUT: Layout = LAYOUTS.includes(cfg.defaultLayout)
+  ? cfg.defaultLayout
+  : 'justified';
 
 const LAYOUT_ICONS: Record<Layout, string> = {
   justified:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="11" width="8" height="9" rx="1"/><rect x="13" y="11" width="8" height="9" rx="1"/></svg>',
   masonry:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="3" y="12" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/></svg>',
-  grid:
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>'
+  grid: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>'
 };
 
 // ---------------------------------------------------------------- Lightbox ---
@@ -30,8 +35,12 @@ function createLightbox() {
   root = document.querySelector<HTMLElement>('[data-lightbox-root]');
   if (!root) throw new Error('Gallery lightbox root is missing.');
   root.querySelector('[data-lb-close]')?.addEventListener('click', closeLightbox);
-  root.querySelector('[data-lb-prev]')?.addEventListener('click', () => showLightbox(currentIndex - 1));
-  root.querySelector('[data-lb-next]')?.addEventListener('click', () => showLightbox(currentIndex + 1));
+  root
+    .querySelector('[data-lb-prev]')
+    ?.addEventListener('click', () => showLightbox(currentIndex - 1));
+  root
+    .querySelector('[data-lb-next]')
+    ?.addEventListener('click', () => showLightbox(currentIndex + 1));
   root.addEventListener('click', (event) => {
     if (event.target === root) closeLightbox();
   });
@@ -95,7 +104,8 @@ document.addEventListener('keydown', (event) => {
 function aspectRatioOf(img: HTMLImageElement | null, src: string): Promise<number> {
   return new Promise((resolve) => {
     const settle = (el: HTMLImageElement | null) => {
-      const ratio = el && el.naturalWidth && el.naturalHeight ? el.naturalWidth / el.naturalHeight : 0;
+      const ratio =
+        el && el.naturalWidth && el.naturalHeight ? el.naturalWidth / el.naturalHeight : 0;
       resolve(ratio > 0 ? ratio : 1.5);
     };
     if (img && img.complete && img.naturalWidth) return settle(img);
@@ -176,7 +186,9 @@ async function setupGallery(gallery: HTMLElement, groupIndex: number) {
       if (value === layout || !instance) return;
       layout = value;
       instance.setOptions({ layout });
-      buttons.forEach((entry) => entry.setAttribute('aria-pressed', String(entry.dataset.layout === layout)));
+      buttons.forEach((entry) =>
+        entry.setAttribute('aria-pressed', String(entry.dataset.layout === layout))
+      );
     });
     button.dataset.layout = value;
     return button;

@@ -22,7 +22,8 @@ export function isLocale(value: string | undefined): value is Locale {
 
 export function getLocalePath(locale: Locale, path = '/') {
   const normalized = path.startsWith('/') ? path : `/${path}`;
-  const localized = locale === defaultLocale ? normalized : `/${locale}${normalized === '/' ? '/' : normalized}`;
+  const localized =
+    locale === defaultLocale ? normalized : `/${locale}${normalized === '/' ? '/' : normalized}`;
   const base = import.meta.env.BASE_URL || '/';
   if (base === '/') return localized;
   return `${base.replace(/\/$/, '')}${localized}`.replace(/\/+/g, '/');

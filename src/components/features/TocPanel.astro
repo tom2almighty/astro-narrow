@@ -10,63 +10,74 @@ const { headings, series } = Astro.props;
 const indent = (depth: number) => `padding-left: ${(depth - 2) * 0.85 + 0.5}rem`;
 ---
 
-{series ? (
-  <div>
-    <a
-      href={series.href}
-      class="flex items-center justify-between gap-2 rounded-xs px-2 py-1.5 text-step--1 font-semibold text-fg transition-colors hover:bg-hover"
-    >
-      <span class="truncate">{series.title}</span>
-      <span class="shrink-0 text-xs tabular-nums text-fg-muted">{series.position > 0 ? `${series.position}/${series.total}` : series.total}</span>
-    </a>
-    <ol class="mt-1 space-y-0.5 border-t border-border pt-1">
-      {series.items.map((item) => (
-        <li>
-          {item.current ? (
-            <>
-              <span aria-current="true" class="flex items-baseline gap-2 rounded-xs bg-hover px-2 py-1.5 text-step--1 font-semibold text-fg">
-                <span class="w-4 shrink-0 text-right text-xs tabular-nums text-fg-muted">{item.position > 0 ? item.position : '·'}</span>
-                <span class="truncate">{item.title}</span>
-              </span>
-              {headings.length > 0 && (
-                <div class="my-1 ml-4 border-l border-border pl-1.5">
-                  {headings.map((heading) => (
-                    <a
-                      href={`#${heading.slug}`}
-                      data-toc-link
-                      class="block truncate rounded-xs px-2 py-1.5 text-step--1 text-fg-muted transition-colors hover:bg-hover hover:text-fg"
-                      style={indent(heading.depth)}
-                    >
-                      {heading.text}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <a
-              href={item.href}
-              class="flex items-baseline gap-2 rounded-xs px-2 py-1.5 text-step--1 text-fg-muted transition-colors hover:bg-hover hover:text-fg"
-            >
-              <span class="w-4 shrink-0 text-right text-xs tabular-nums">{item.position > 0 ? item.position : '·'}</span>
-              <span class="truncate">{item.title}</span>
-            </a>
-          )}
-        </li>
-      ))}
-    </ol>
-  </div>
-) : (
-  <div>
-    {headings.map((heading) => (
+{
+  series ? (
+    <div>
       <a
-        href={`#${heading.slug}`}
-        data-toc-link
-        class="block truncate rounded-xs px-2 py-1.5 text-step--1 text-fg-muted transition-colors hover:bg-hover hover:text-fg"
-        style={indent(heading.depth)}
+        href={series.href}
+        class="flex items-center justify-between gap-2 rounded-xs px-2 py-1.5 text-step--1 font-semibold text-fg transition-colors hover:bg-hover"
       >
-        {heading.text}
+        <span class="truncate">{series.title}</span>
+        <span class="shrink-0 text-xs text-fg-muted tabular-nums">
+          {series.position > 0 ? `${series.position}/${series.total}` : series.total}
+        </span>
       </a>
-    ))}
-  </div>
-)}
+      <ol class="mt-1 space-y-0.5 border-t border-border pt-1">
+        {series.items.map((item) => (
+          <li>
+            {item.current ? (
+              <>
+                <span
+                  aria-current="true"
+                  class="flex items-baseline gap-2 rounded-xs bg-hover px-2 py-1.5 text-step--1 font-semibold text-fg"
+                >
+                  <span class="w-4 shrink-0 text-right text-xs text-fg-muted tabular-nums">
+                    {item.position > 0 ? item.position : '·'}
+                  </span>
+                  <span class="truncate">{item.title}</span>
+                </span>
+                {headings.length > 0 && (
+                  <div class="my-1 ml-4 border-l border-border pl-1.5">
+                    {headings.map((heading) => (
+                      <a
+                        href={`#${heading.slug}`}
+                        data-toc-link
+                        class="block truncate rounded-xs px-2 py-1.5 text-step--1 text-fg-muted transition-colors hover:bg-hover hover:text-fg"
+                        style={indent(heading.depth)}
+                      >
+                        {heading.text}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <a
+                href={item.href}
+                class="flex items-baseline gap-2 rounded-xs px-2 py-1.5 text-step--1 text-fg-muted transition-colors hover:bg-hover hover:text-fg"
+              >
+                <span class="w-4 shrink-0 text-right text-xs tabular-nums">
+                  {item.position > 0 ? item.position : '·'}
+                </span>
+                <span class="truncate">{item.title}</span>
+              </a>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  ) : (
+    <div>
+      {headings.map((heading) => (
+        <a
+          href={`#${heading.slug}`}
+          data-toc-link
+          class="block truncate rounded-xs px-2 py-1.5 text-step--1 text-fg-muted transition-colors hover:bg-hover hover:text-fg"
+          style={indent(heading.depth)}
+        >
+          {heading.text}
+        </a>
+      ))}
+    </div>
+  )
+}

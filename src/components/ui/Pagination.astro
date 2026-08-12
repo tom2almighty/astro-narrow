@@ -27,41 +27,65 @@ function pageItems(current: number, total: number) {
 }
 
 const items = pageItems(current, total);
-const stepClass = 'grid h-9 min-w-9 place-items-center rounded-base px-2 text-step--1 text-fg-muted transition-colors duration-200 hover:bg-hover hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none';
+const stepClass =
+  'grid h-9 min-w-9 place-items-center rounded-base px-2 text-step--1 text-fg-muted transition-colors duration-200 hover:bg-hover hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none';
 ---
 
-{total > 1 && (
-  <nav class="mt-12 flex items-center justify-center gap-1" aria-label={t('pagination.label')}>
-    {current > 1 ? (
-      <a href={postListPagePath(locale, current - 1)} class={stepClass} aria-label={t('pagination.previous')}>
-        <Icon name="lucide:chevron-left" class="h-4 w-4" />
-      </a>
-    ) : (
-      <span class="grid h-9 min-w-9 place-items-center rounded-base px-2 text-fg-muted opacity-40" aria-hidden="true">
-        <Icon name="lucide:chevron-left" class="h-4 w-4" />
-      </span>
-    )}
+{
+  total > 1 && (
+    <nav class="mt-12 flex items-center justify-center gap-1" aria-label={t('pagination.label')}>
+      {current > 1 ? (
+        <a
+          href={postListPagePath(locale, current - 1)}
+          class={stepClass}
+          aria-label={t('pagination.previous')}
+        >
+          <Icon name="lucide:chevron-left" class="h-4 w-4" />
+        </a>
+      ) : (
+        <span
+          class="grid h-9 min-w-9 place-items-center rounded-base px-2 text-fg-muted opacity-40"
+          aria-hidden="true"
+        >
+          <Icon name="lucide:chevron-left" class="h-4 w-4" />
+        </span>
+      )}
 
-    {items.map((item) => item === 'gap' ? (
-      <span class="px-1 text-fg-muted" aria-hidden="true">…</span>
-    ) : item === current ? (
-      <span aria-current="page" class="grid h-9 min-w-9 place-items-center rounded-base bg-accent px-2 text-step--1 font-medium tabular-nums text-accent-contrast">
-        {item}
-      </span>
-    ) : (
-      <a href={postListPagePath(locale, item)} class:list={[stepClass, 'tabular-nums']}>
-        {item}
-      </a>
-    ))}
+      {items.map((item) =>
+        item === 'gap' ? (
+          <span class="px-1 text-fg-muted" aria-hidden="true">
+            …
+          </span>
+        ) : item === current ? (
+          <span
+            aria-current="page"
+            class="grid h-9 min-w-9 place-items-center rounded-base bg-accent px-2 text-step--1 font-medium text-accent-contrast tabular-nums"
+          >
+            {item}
+          </span>
+        ) : (
+          <a href={postListPagePath(locale, item)} class:list={[stepClass, 'tabular-nums']}>
+            {item}
+          </a>
+        )
+      )}
 
-    {current < total ? (
-      <a href={postListPagePath(locale, current + 1)} class={stepClass} aria-label={t('pagination.next')}>
-        <Icon name="lucide:chevron-right" class="h-4 w-4" />
-      </a>
-    ) : (
-      <span class="grid h-9 min-w-9 place-items-center rounded-base px-2 text-fg-muted opacity-40" aria-hidden="true">
-        <Icon name="lucide:chevron-right" class="h-4 w-4" />
-      </span>
-    )}
-  </nav>
-)}
+      {current < total ? (
+        <a
+          href={postListPagePath(locale, current + 1)}
+          class={stepClass}
+          aria-label={t('pagination.next')}
+        >
+          <Icon name="lucide:chevron-right" class="h-4 w-4" />
+        </a>
+      ) : (
+        <span
+          class="grid h-9 min-w-9 place-items-center rounded-base px-2 text-fg-muted opacity-40"
+          aria-hidden="true"
+        >
+          <Icon name="lucide:chevron-right" class="h-4 w-4" />
+        </span>
+      )}
+    </nav>
+  )
+}

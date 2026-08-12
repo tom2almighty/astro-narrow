@@ -4,7 +4,11 @@ function isWhitespace(node) {
 
 function imageChildren(paragraph) {
   const children = paragraph.children || [];
-  if (!children.every((child) => isWhitespace(child) || (child.type === 'element' && child.tagName === 'img'))) {
+  if (
+    !children.every(
+      (child) => isWhitespace(child) || (child.type === 'element' && child.tagName === 'img')
+    )
+  ) {
     return [];
   }
   return children.filter((child) => child.type === 'element' && child.tagName === 'img');
@@ -16,14 +20,29 @@ function figureForImage(img, index = 0) {
   img.properties ||= {};
   img.properties.loading ||= 'lazy';
   img.properties.decoding ||= 'async';
-  img.properties.className = ['mx-auto', 'block', 'max-h-[30rem]', 'w-auto', 'max-w-full', 'cursor-zoom-in', 'object-contain'];
+  img.properties.className = [
+    'mx-auto',
+    'block',
+    'max-h-[30rem]',
+    'w-auto',
+    'max-w-full',
+    'cursor-zoom-in',
+    'object-contain'
+  ];
 
   const children = [
     {
       type: 'element',
       tagName: 'div',
       properties: {
-        className: ['image-container', 'flex', 'justify-center', 'overflow-hidden', 'rounded-base', 'bg-muted/20']
+        className: [
+          'image-container',
+          'flex',
+          'justify-center',
+          'overflow-hidden',
+          'rounded-base',
+          'bg-muted/20'
+        ]
       },
       children: [img]
     }
@@ -33,7 +52,9 @@ function figureForImage(img, index = 0) {
     children.push({
       type: 'element',
       tagName: 'figcaption',
-      properties: { className: ['image-caption', 'mt-2.5', 'text-center', 'text-sm', 'text-fg-muted'] },
+      properties: {
+        className: ['image-caption', 'mt-2.5', 'text-center', 'text-sm', 'text-fg-muted']
+      },
       children: [{ type: 'text', value: String(title) }]
     });
   }

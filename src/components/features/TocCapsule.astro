@@ -13,7 +13,10 @@ const { headings, series, class: className } = Astro.props;
 const capsuleTitle = headings[0]?.text ?? series?.title ?? '';
 ---
 
-<aside data-toc-root class:list={['pointer-events-none fixed inset-x-0 top-26 z-30 px-4', className]}>
+<aside
+  data-toc-root
+  class:list={['pointer-events-none fixed inset-x-0 top-26 z-30 px-4', className]}
+>
   <div class="pointer-events-auto relative mx-auto w-fit">
     <button
       type="button"
@@ -23,17 +26,24 @@ const capsuleTitle = headings[0]?.text ?? series?.title ?? '';
       class="glass flex max-w-[min(22rem,calc(100vw-2rem))] items-center gap-2 rounded-base border px-4 py-1.5 text-step--1 text-fg-muted transition-colors hover:text-accent-text"
     >
       <Icon name="lucide:list" class="h-4 w-4 shrink-0" />
-      {series && series.position > 0 && (
-        <span class="shrink-0 text-xs tabular-nums">{series.position}/{series.total}</span>
-      )}
+      {
+        series && series.position > 0 && (
+          <span class="shrink-0 text-xs tabular-nums">
+            {series.position}/{series.total}
+          </span>
+        )
+      }
       <span data-toc-title class="truncate">{capsuleTitle}</span>
-      <Icon name="lucide:chevron-down" class="toc-chevron h-4 w-4 shrink-0 transition-transform duration-200" />
+      <Icon
+        name="lucide:chevron-down"
+        class="toc-chevron h-4 w-4 shrink-0 transition-transform duration-200"
+      />
     </button>
     <nav
       id="toc-capsule-dropdown"
       data-toc-dropdown
       data-toc-panel
-      class="toc-dropdown absolute left-1/2 top-full mt-2 max-h-[60vh] w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-base border border-border glass p-2 text-left"
+      class="toc-dropdown glass absolute top-full left-1/2 mt-2 max-h-[60vh] w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-base border border-border p-2 text-left"
     >
       <TocPanel headings={headings} series={series} />
     </nav>

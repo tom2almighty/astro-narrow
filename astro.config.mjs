@@ -35,7 +35,13 @@ export default defineConfig({
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath, remarkDirective, remarkTabs],
-      rehypePlugins: [rehypeKatex, rehypeHeadingAnchors, rehypeAlerts, rehypeImageGroups, rehypeMermaid]
+      rehypePlugins: [
+        rehypeKatex,
+        rehypeHeadingAnchors,
+        rehypeAlerts,
+        rehypeImageGroups,
+        rehypeMermaid
+      ]
     })
   },
   vite: {

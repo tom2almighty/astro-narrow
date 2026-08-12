@@ -79,7 +79,12 @@ const themeInit = `
 ---
 
 <!doctype html>
-<html lang={htmlLang} data-theme={defaultTheme} data-scheme={defaultScheme} style={`--layout-content-width: ${siteConfig.contentWidth}`}>
+<html
+  lang={htmlLang}
+  data-theme={defaultTheme}
+  data-scheme={defaultScheme}
+  style={`--layout-content-width: ${siteConfig.contentWidth}`}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -88,16 +93,20 @@ const themeInit = `
     <link rel="icon" type="image/svg+xml" href={faviconSvg} />
     <link rel="icon" href={faviconIco} />
     <title>{pageTitle}</title>
-    <script is:inline set:html={themeInit}></script>
+    <script is:inline set:html={themeInit} />
   </head>
-  <body class="bg-canvas text-fg min-h-screen antialiased">
+  <body class="min-h-screen bg-canvas text-fg antialiased">
     <main class="mx-auto min-h-screen w-full max-w-[var(--layout-content-width)] px-4">
       <Header locale={locale} />
       <slot />
       {comments && <Comments />}
       <Footer locale={locale} />
     </main>
-    {toc && (headings.length > 0 || series) && <Toc headings={headings} position={toc === true ? 'center' : toc} series={series} />}
+    {
+      toc && (headings.length > 0 || series) && (
+        <Toc headings={headings} position={toc === true ? 'center' : toc} series={series} />
+      )
+    }
     {siteConfig.ui.dock.enabled && <Dock locale={locale} />}
     <SearchModal locale={locale} />
     <GalleryLightbox locale={locale} />

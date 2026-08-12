@@ -4,7 +4,7 @@ export default defineEcConfig({
   emitExternalStylesheet: false,
   themes: ['github-light', 'github-dark'],
   useDarkModeMediaQuery: false,
-  themeCssSelector: (theme) => theme.name === 'github-dark' ? '.dark' : ':root:not(.dark)',
+  themeCssSelector: (theme) => (theme.name === 'github-dark' ? '.dark' : ':root:not(.dark)'),
   styleOverrides: {
     borderRadius: 'var(--radius)',
     borderColor: 'var(--border)',

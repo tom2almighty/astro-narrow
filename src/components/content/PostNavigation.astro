@@ -17,22 +17,31 @@ const t = useTranslations(locale);
 const previousLabel = kind === 'series' ? t('series.previousChapter') : t('postNav.previous');
 const nextLabel = kind === 'series' ? t('series.nextChapter') : t('postNav.next');
 const ariaLabel = kind === 'series' ? t('series.navigation') : t('postNav.navigation');
-const linkClass = 'block rounded-base border border-border bg-canvas p-4 transition-colors duration-200 hover:border-border-strong hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none';
+const linkClass =
+  'block rounded-base border border-border bg-canvas p-4 transition-colors duration-200 hover:border-border-strong hover:bg-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none';
 ---
 
-{(previous || next) && (
-  <nav class="mt-12 grid gap-3 border-t border-border pt-8 sm:grid-cols-2" aria-label={ariaLabel}>
-    {previous ? (
-      <a href={localizedEntryPath('posts', previous)} class={linkClass}>
-        <span class="flex items-center gap-2 text-step--1 text-fg-muted"><Icon name="lucide:arrow-left" class="h-4 w-4" /> {previousLabel}</span>
-        <strong class="mt-2 block font-medium">{previous.data.title}</strong>
-      </a>
-    ) : <span></span>}
-    {next && (
-      <a href={localizedEntryPath('posts', next)} class:list={[linkClass, 'text-right']}>
-        <span class="flex items-center justify-end gap-2 text-step--1 text-fg-muted">{nextLabel} <Icon name="lucide:arrow-right" class="h-4 w-4" /></span>
-        <strong class="mt-2 block font-medium">{next.data.title}</strong>
-      </a>
-    )}
-  </nav>
-)}
+{
+  (previous || next) && (
+    <nav class="mt-12 grid gap-3 border-t border-border pt-8 sm:grid-cols-2" aria-label={ariaLabel}>
+      {previous ? (
+        <a href={localizedEntryPath('posts', previous)} class={linkClass}>
+          <span class="flex items-center gap-2 text-step--1 text-fg-muted">
+            <Icon name="lucide:arrow-left" class="h-4 w-4" /> {previousLabel}
+          </span>
+          <strong class="mt-2 block font-medium">{previous.data.title}</strong>
+        </a>
+      ) : (
+        <span />
+      )}
+      {next && (
+        <a href={localizedEntryPath('posts', next)} class:list={[linkClass, 'text-right']}>
+          <span class="flex items-center justify-end gap-2 text-step--1 text-fg-muted">
+            {nextLabel} <Icon name="lucide:arrow-right" class="h-4 w-4" />
+          </span>
+          <strong class="mt-2 block font-medium">{next.data.title}</strong>
+        </a>
+      )}
+    </nav>
+  )
+}

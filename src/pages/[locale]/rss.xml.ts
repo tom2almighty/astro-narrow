@@ -3,10 +3,20 @@ import { getLocalizedEntries } from '../../lib/content/entries';
 import { renderRss } from '../../lib/content/rss';
 
 export function getStaticPaths() {
-  return locales.filter((locale) => locale !== defaultLocale).map((locale) => ({ params: { locale } }));
+  return locales
+    .filter((locale) => locale !== defaultLocale)
+    .map((locale) => ({ params: { locale } }));
 }
 
-export async function GET({ params, site, url }: { params: { locale: Locale }; site?: URL; url: URL }) {
+export async function GET({
+  params,
+  site,
+  url
+}: {
+  params: { locale: Locale };
+  site?: URL;
+  url: URL;
+}) {
   const posts = await getLocalizedEntries('posts', params.locale);
   const origin = site?.origin || url.origin;
 
