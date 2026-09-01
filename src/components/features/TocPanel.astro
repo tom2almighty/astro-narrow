@@ -37,11 +37,12 @@ const indent = (depth: number) => `padding-left: ${(depth - 2) * 0.85 + 0.5}rem`
                   <span class="truncate">{item.title}</span>
                 </span>
                 {headings.length > 0 && (
-                  <div class="my-1 ml-4 border-l border-border pl-1.5">
+                  <div data-toc-subtree class="my-1 ml-4 border-l border-border pl-1.5">
                     {headings.map((heading) => (
                       <a
                         href={`#${heading.slug}`}
                         data-toc-link
+                        data-depth={heading.depth}
                         class="block truncate rounded-xs px-2 py-1.5 text-step--1 text-fg-muted transition-colors hover:bg-hover hover:text-fg"
                         style={indent(heading.depth)}
                       >
@@ -72,6 +73,7 @@ const indent = (depth: number) => `padding-left: ${(depth - 2) * 0.85 + 0.5}rem`
         <a
           href={`#${heading.slug}`}
           data-toc-link
+          data-depth={heading.depth}
           class="block truncate rounded-xs px-2 py-1.5 text-step--1 text-fg-muted transition-colors hover:bg-hover hover:text-fg"
           style={indent(heading.depth)}
         >

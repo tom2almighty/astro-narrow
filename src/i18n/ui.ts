@@ -67,7 +67,10 @@ export const ui = {
     'search.label': 'Search',
     'search.loading': 'Loading index',
     'search.noResults': 'No results found',
-    'search.placeholder': 'Search content'
+    'search.placeholder': 'Search content',
+    'toc.label': 'Table of contents',
+    'toc.pin': 'Keep contents open',
+    'toc.unpin': 'Stop keeping contents open'
   },
   'zh-cn': {
     'archive.description': '按发布日期排列的全部文章。',
@@ -128,7 +131,10 @@ export const ui = {
     'search.label': '搜索',
     'search.loading': '正在加载索引',
     'search.noResults': '没有找到结果',
-    'search.placeholder': '搜索内容'
+    'search.placeholder': '搜索内容',
+    'toc.label': '目录',
+    'toc.pin': '固定显示目录',
+    'toc.unpin': '取消固定显示'
   }
 } as const satisfies Record<Locale, Record<string, string>>;
 

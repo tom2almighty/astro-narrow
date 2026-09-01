@@ -27,6 +27,11 @@ export const siteConfig = {
     },
     dock: {
       enabled: true
+    },
+    toc: {
+      // Side TOC pinned open on first visit. `ASTRO_TOC_PIN` overrides it at
+      // build time; either way a visitor's own pin toggle wins from then on.
+      defaultPin: false
     }
   },
   // Items are either a registered route id ('posts' | 'projects' | 'archives')
@@ -109,6 +114,9 @@ export const siteConfig = {
     };
     dock: {
       enabled: boolean;
+    };
+    toc: {
+      defaultPin: boolean;
     };
   };
   nav: Array<string | { label: string | Record<Locale, string>; href: string; icon?: string }>;

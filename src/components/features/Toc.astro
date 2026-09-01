@@ -1,6 +1,9 @@
 ---
+import { Icon } from 'astro-icon/components';
 import TocPanel from './TocPanel.astro';
 import TocCapsule from './TocCapsule.astro';
+import { defaultLocale, type Locale } from '../../config/i18n';
+import { useTranslations } from '../../i18n/utils';
 
 export interface TocHeading {
   depth: number;
@@ -28,47 +31,63 @@ interface Props {
   headings: TocHeading[];
   position: 'center' | 'side';
   series?: TocSeries;
+  locale?: Locale;
 }
 
-const { headings, position, series } = Astro.props;
+const { headings, position, series, locale = defaultLocale } = Astro.props;
+const t = useTranslations(locale);
 const filtered = headings
   .filter((heading) => heading.depth >= 2 && heading.depth <= 4)
   .map((heading) => ({ ...heading, text: heading.text.replace(/#$/, '').trim() }));
 const hasPanel = filtered.length > 0 || Boolean(series);
+// The spine needs headings to draw ticks from; series-only entries stay on the capsule.
+const useRail = position === 'side' && filtered.length > 0;
 ---
 
 {
   hasPanel &&
-    (position === 'center' ? (
-      <TocCapsule headings={filtered} series={series} />
-    ) : (
+    (useRail ? (
       <>
-        {/* Below xl the side rail has no room; fall back to the capsule. */}
-        <TocCapsule headings={filtered} series={series} class="xl:hidden" />
-        <aside data-toc-root class="fixed top-24 right-4 z-30 hidden xl:block">
-          <div class="group relative flex items-center justify-end">
-            <div
-              data-toc-bars
-              class="flex flex-col items-end gap-1 transition-opacity duration-150 group-hover:pointer-events-none group-hover:opacity-0"
-            >
+        {/* Below lg the gutter is too tight and touch has no hover: use the capsule. */}
+        <TocCapsule headings={filtered} series={series} class="lg:hidden" />
+        <aside
+          data-toc-root
+          class="toc-rail hidden lg:block"
+          style={`--toc-count: ${filtered.length}`}
+        >
+          <div class="toc-rail-inner">
+            <div class="toc-ticks" aria-hidden="true">
               {filtered.map((heading) => (
-                <a
-                  href={`#${heading.slug}`}
-                  data-toc-link
-                  class="toc-bar block h-1 rounded-l-full bg-muted transition-all hover:bg-accent"
-                  style={`width: ${Math.max(0.4, 1.15 - (heading.depth - 2) * 0.22)}rem`}
-                  aria-label={heading.text}
+                <span
+                  data-toc-tick
+                  data-slug={heading.slug}
+                  data-depth={heading.depth}
+                  class="toc-tick"
                 />
               ))}
             </div>
-            <nav
-              data-toc-panel
-              class="glass absolute top-0 right-0 hidden max-h-[70vh] w-64 overflow-auto rounded-base border border-border p-2 text-step--1 group-hover:block"
-            >
-              <TocPanel headings={filtered} series={series} />
+            <nav data-toc-panel class="toc-flyout glass" aria-label={t('toc.label')}>
+              <button
+                type="button"
+                data-toc-pin
+                class="toc-pin"
+                aria-pressed="false"
+                aria-label={t('toc.pin')}
+                title={t('toc.pin')}
+                data-label-pin={t('toc.pin')}
+                data-label-unpin={t('toc.unpin')}
+              >
+                <Icon name="lucide:pin" class="toc-pin-on h-3.5 w-3.5" />
+                <Icon name="lucide:pin-off" class="toc-pin-off h-3.5 w-3.5" />
+              </button>
+              <div data-toc-scroll class="toc-flyout-scroll">
+                <TocPanel headings={filtered} series={series} />
+              </div>
             </nav>
           </div>
         </aside>
       </>
+    ) : (
+      <TocCapsule headings={filtered} series={series} />
     ))
 }

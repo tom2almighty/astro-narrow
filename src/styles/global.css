@@ -360,6 +360,262 @@ body::after {
   font-weight: 500;
 }
 
-[data-toc-bars] a.toc-active {
+/*
+ * Side rail — a segmented spine hugging the reading column.
+ *
+ * The rail is fixed (never in flow, so it cannot widen the content) and spans
+ * exactly the gutter beside the column, which also makes it the query
+ * container: `@container` then answers "is there room for the panel outside
+ * the text?" in CSS alone — no measuring, and it keeps tracking the runtime
+ * `--layout-content-width` the Dock writes.
+ *
+ *   gutter >= 12rem  panel opens outward into the gutter, chrome-less, pinnable
+ *   gutter <  12rem  panel opens inward over the text as a glass overlay,
+ *                    hover only (pinning it would sit on the words)
+ */
+.toc-rail {
+  /* Band the segments live in (the column's own px-4 gutter), the flyout's
+     inner padding, and how far the hover zone reaches into the margin. The
+     flyout is placed from the first two, so its segments land on the collapsed
+     ones and the panel grows in place. */
+  --toc-band: 1rem;
+  --toc-pad: 0.25rem;
+  --toc-zone: 18rem;
+  position: fixed;
+  top: 50%;
+  /* % over vw: for a fixed box this excludes a classic scrollbar. */
+  left: calc(50% + min(var(--layout-content-width), 100%) / 2);
+  z-index: 30;
+  width: max(0px, calc((100% - min(var(--layout-content-width), 100%)) / 2));
+  transform: translateY(-50%);
+  container-type: inline-size;
+  pointer-events: none;
+}
+
+/* Pulled back into the column's own px-4 gutter: touching, never overlapping. */
+.toc-rail-inner {
+  position: relative;
+  width: var(--toc-band);
+  margin-left: calc(var(--toc-band) * -1);
+  pointer-events: auto;
+}
+
+/*
+ * Hover zone. Opening a panel off a 2px spine would be a nuisance, so the
+ * trigger is the TOC's whole column: the segments plus as much of the empty
+ * margin as the panel itself uses, generously padded top and bottom. It stops
+ * at the column edge on purpose — reaching over the text would swallow clicks
+ * and selections there. As the first child pseudo it paints below the flyout,
+ * so an open panel still gets its own clicks.
+ */
+.toc-rail-inner::before {
+  content: '';
+  position: absolute;
+  inset: -10vh calc(-1 * min(var(--toc-zone), 100cqw)) -10vh 0;
+}
+
+.toc-ticks {
+  /*
+   * Vertical budget per heading: shrinks as headings pile up (--toc-count is
+   * written by the component), floored so the spine stays legible and capped
+   * so short posts do not sprawl.
+   */
+  --toc-slot: clamp(0.3rem, calc(58vh / var(--toc-count, 1)), 0.75rem);
+  display: flex;
+  max-height: 62vh;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--toc-slot) * 0.38);
+  overflow: hidden;
+  transition: opacity 0.18s ease;
+}
+
+.toc-tick {
+  flex: none;
+  width: 2px;
+  height: calc(var(--toc-slot) * 0.62);
+  border-radius: 999px;
+  background: var(--border-strong);
+  transition:
+    background-color 0.18s ease,
+    width 0.18s ease;
+}
+
+/* Depth reads as length: shorter tick, quieter line. */
+.toc-tick[data-depth='3'] {
+  height: calc(var(--toc-slot) * 0.45);
+  background: var(--border);
+}
+
+.toc-tick[data-depth='4'] {
+  height: calc(var(--toc-slot) * 0.31);
+  background: var(--border);
+}
+
+.toc-tick.toc-active {
+  width: 3px;
+  height: calc(var(--toc-slot) * 0.62);
   background: var(--accent);
+}
+
+/* The spine is the collapsed form of the panel: it steps aside when it opens. */
+.toc-rail-inner:hover .toc-ticks,
+.toc-rail-inner:focus-within .toc-ticks {
+  opacity: 0;
+}
+
+.toc-flyout {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  max-height: min(70vh, 34rem);
+  flex-direction: column;
+  border-radius: var(--radius);
+  padding: var(--toc-pad);
+  opacity: 0;
+  pointer-events: none;
+  text-align: left;
+  font-size: var(--step--1);
+  /* Grown, not slid: the scale origin sits on the side the spine is on. */
+  transform: translateY(-50%) scale(0.98);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.toc-rail-inner:hover .toc-flyout,
+.toc-rail-inner:focus-within .toc-flyout {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) scale(1);
+}
+
+.toc-flyout-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/*
+ * When the flyout opens, the spine does not vanish — it grows into the list.
+ * Every row carries its own segment, aligned on the row box's left edge so the
+ * rows together redraw the same segmented spine at reading size: indentation
+ * carries structure, segment length carries depth.
+ */
+.toc-flyout [data-toc-link] {
+  position: relative;
+}
+
+.toc-flyout [data-toc-link]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 2px;
+  height: 0.95rem;
+  border-radius: 999px;
+  background: var(--border-strong);
+  transform: translateY(-50%);
+  transition:
+    background-color 0.18s ease,
+    width 0.18s ease;
+}
+
+.toc-flyout [data-toc-link][data-depth='3']::before {
+  height: 0.65rem;
+  background: var(--border);
+}
+
+.toc-flyout [data-toc-link][data-depth='4']::before {
+  height: 0.45rem;
+  background: var(--border);
+}
+
+.toc-flyout [data-toc-link].toc-active::before {
+  width: 3px;
+  height: 0.95rem;
+  background: var(--accent);
+}
+
+/* In a series, the segments are the guide line — drop the subtree's own rule. */
+.toc-flyout [data-toc-subtree] {
+  border-left-color: transparent;
+}
+
+.toc-pin {
+  display: none;
+  align-self: flex-end;
+  border-radius: var(--radius-xs);
+  padding: 0.25rem;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.toc-pin:hover {
+  background: var(--hover);
+  color: var(--fg);
+}
+
+.toc-pin:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.toc-pin-off,
+html[data-toc-pin] .toc-pin-on {
+  display: none;
+}
+
+html[data-toc-pin] .toc-pin-off {
+  display: inline-block;
+}
+
+html[data-toc-pin] .toc-pin {
+  color: var(--accent-text);
+}
+
+/* Tight: inward overlay over the text, so it needs the shared glass shell. */
+@container (width < 12rem) {
+  .toc-flyout {
+    right: 100%;
+    width: min(18rem, calc(100vw - 4rem));
+    border: 1px solid var(--border);
+    transform-origin: right center;
+  }
+}
+
+/* Roomy: outward into the gutter, no shell at all — same paper as the article. */
+@container (width >= 12rem) {
+  .toc-flyout {
+    /* Half the band lands on the segment column, then back off half a segment
+       and the panel's own padding: the rows' segments come up exactly where
+       the collapsed ones were. */
+    left: calc(50% - 1px - var(--toc-pad));
+    width: min(18rem, calc(100cqw - 0.75rem));
+    border-color: transparent;
+    background: none;
+    backdrop-filter: none;
+    transform-origin: left center;
+  }
+
+  .toc-pin {
+    display: inline-flex;
+  }
+
+  html[data-toc-pin] .toc-flyout {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) scale(1);
+  }
+
+  /* Chrome-less panel: the accent segment marks the active row, no wash pill. */
+  .toc-flyout a.toc-active {
+    background: none;
+  }
+
+  html[data-toc-pin] .toc-ticks {
+    opacity: 0;
+  }
 }

@@ -44,6 +44,18 @@ const htmlLang = localeMeta[locale].htmlLang;
 const assetBase = import.meta.env.BASE_URL || '/';
 const faviconSvg = `${assetBase.replace(/\/?$/, '/')}favicon.svg`;
 const faviconIco = `${assetBase.replace(/\/?$/, '/')}favicon.ico`;
+/*
+ * Whether the side TOC starts pinned open. `ASTRO_TOC_PIN` (build time, so it
+ * can be flipped per deployment) overrides the config default; anything other
+ * than a recognised truthy/falsy word falls back to the config.
+ */
+const tocPinEnv = import.meta.env.ASTRO_TOC_PIN ?? process.env.ASTRO_TOC_PIN;
+const tocPinFlag = String(tocPinEnv ?? '').toLowerCase();
+const tocPinDefault = ['1', 'true', 'yes', 'on'].includes(tocPinFlag)
+  ? true
+  : ['0', 'false', 'no', 'off'].includes(tocPinFlag)
+    ? false
+    : siteConfig.ui.toc.defaultPin;
 const themeInit = `
 (() => {
   const root = document.documentElement;
@@ -68,6 +80,8 @@ const themeInit = `
     if (contentWidth && /^\\d+(?:\\.\\d+)?rem$/.test(contentWidth)) {
       root.style.setProperty('--layout-content-width', contentWidth);
     }
+    const tocPin = localStorage.getItem('toc-pin');
+    if (tocPin === 'true' || (tocPin === null && ${tocPinDefault})) root.dataset.tocPin = 'true';
     if (mode === 'dark' || (!mode && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       root.classList.add('dark');
     }
@@ -104,7 +118,12 @@ const themeInit = `
     </main>
     {
       toc && (headings.length > 0 || series) && (
-        <Toc headings={headings} position={toc === true ? 'center' : toc} series={series} />
+        <Toc
+          headings={headings}
+          position={toc === true ? 'center' : toc}
+          series={series}
+          locale={locale}
+        />
       )
     }
     {siteConfig.ui.dock.enabled && <Dock locale={locale} />}
