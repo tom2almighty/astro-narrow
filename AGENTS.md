@@ -25,7 +25,7 @@ A content-focused Astro 7 blog theme ("Astro Narrow"): one narrow reading column
 
 All user-facing knobs are TypeScript config, not frontmatter or env:
 
-- `site.ts` — site metadata, `contentWidth`, `nav`/`footerNav` (route ids `'posts' | 'projects' | 'archives'` or inline link objects), home sections, `list.pageSize`, comments (giscus), analytics (umami), gallery defaults.
+- `site.ts` — site metadata, `contentWidth`, `nav`/`footerNav` (route ids `'posts' | 'projects' | 'archives'` or inline link objects), home sections, `list.pageSize`, `ui.toc` (`position` = default TOC placement, `defaultPin`), comments (giscus), analytics (umami), gallery defaults.
 - `theme.ts` — default theme id, seed presets (per-family oklch recipes), picker limits, and the seed string helper used by the runtime hue/chroma/lightness sliders.
 - `i18n.ts` — locales, plus all locale/path helpers (`getLocalePath`, `switchLocalePath`, `getLocaleFromId`, …). Adding a locale requires touching three places: `i18n.locales` here, `i18n.locales` in `astro.config.mjs`, and the `lang` enum in `src/content.config.ts`.
 
@@ -44,7 +44,7 @@ Two parallel route trees: the root tree serves the default locale unprefixed (`/
 
 ### Markdown pipeline (`astro.config.mjs` + `src/lib/markdown/`)
 
-The markdown processor is a custom `unified()` chain, and all custom plugins are local `.mjs` files: `remark-tabs` (directive-based `::::tabs`), `rehype-heading-anchors`, `rehype-alerts`, `rehype-image-groups` (gallery/lightbox markup), `rehype-mermaid`. Code blocks go through `astro-expressive-code` configured in `ec.config.mjs`. Math is remark-math + rehype-katex. Heavy features (math, mermaid, gallery, lightbox, comments, toc) are opted in/out per entry via frontmatter booleans in the shared schema.
+The markdown processor is a custom `unified()` chain, and all custom plugins are local `.mjs` files: `remark-tabs` (directive-based `::::tabs`), `rehype-heading-anchors`, `rehype-alerts`, `rehype-image-groups` (gallery/lightbox markup), `rehype-mermaid`. Code blocks go through `astro-expressive-code` configured in `ec.config.mjs`. Math is remark-math + rehype-katex. Heavy features (math, mermaid, gallery, lightbox, comments, toc) are opted in/out per entry via frontmatter booleans in the shared schema; `toc` also takes `'center' | 'side'` to override `siteConfig.ui.toc.position` for one entry.
 
 ### Theming: Paper · Ink · Seed (`src/styles/tokens.css`)
 

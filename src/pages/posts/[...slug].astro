@@ -75,7 +75,7 @@ const breadcrumbs = [
   description={entry.data.description}
   locale={locale}
   headings={headings}
-  toc={entry.data.toc ?? 'center'}
+  toc={entry.data.toc ?? siteConfig.ui.toc.position}
   series={tocSeries}
   comments={entry.data.comments}
 >

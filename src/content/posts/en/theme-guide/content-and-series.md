@@ -30,7 +30,7 @@ draft: false
 | `date` / `updatedDate` | Publish and revision dates |
 | `tags` | Archive filtering; discovered automatically |
 | `order` | Chapter order inside a series folder |
-| `toc` | `center`, `side`, `true`, or `false` |
+| `toc` | `center`, `side`, `true`, or `false` — overrides `ui.toc.position` |
 | `cover` | Cover image on cards and the post page |
 | `comments` | Per-post comment switch |
 | `math`, `mermaid`, `gallery`, `lightbox` | Feature hints |

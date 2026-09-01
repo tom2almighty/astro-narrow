@@ -30,7 +30,7 @@ draft: false
 | `date` / `updatedDate` | 发布与修订日期 |
 | `tags` | 归档筛选,自动发现 |
 | `order` | 系列文件夹内的章节顺序 |
-| `toc` | `center`、`side`、`true` 或 `false` |
+| `toc` | `center`、`side`、`true` 或 `false`,覆盖 `ui.toc.position` |
 | `cover` | 卡片与文章页封面 |
 | `comments` | 单篇评论开关 |
 | `math`, `mermaid`, `gallery`, `lightbox` | 功能提示 |

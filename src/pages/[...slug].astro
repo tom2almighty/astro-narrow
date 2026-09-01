@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import { defaultLocale } from '../config/i18n';
+import { siteConfig } from '../config/site';
 import BaseLayout from '../components/layout/BaseLayout.astro';
 import PageHeader from '../components/content/PageHeader.astro';
 import { getLocalizedEntries, entrySlug } from '../lib/content/entries';
@@ -20,7 +21,7 @@ const isTimeline = entry.data.layout === 'timeline';
   description={entry.data.description}
   locale="en"
   headings={headings}
-  toc={entry.data.toc ?? (headings.length > 0 ? 'side' : false)}
+  toc={entry.data.toc ?? (headings.length > 0 ? siteConfig.ui.toc.position : false)}
   comments={entry.data.comments}
 >
   <PageHeader

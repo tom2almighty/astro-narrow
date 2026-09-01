@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import BaseLayout from '../../components/layout/BaseLayout.astro';
 import PageHeader from '../../components/content/PageHeader.astro';
 import { defaultLocale, locales, type Locale } from '../../config/i18n';
+import { siteConfig } from '../../config/site';
 import { getLocalizedEntries, entrySlug } from '../../lib/content/entries';
 
 export async function getStaticPaths() {
@@ -29,7 +30,7 @@ const isTimeline = entry.data.layout === 'timeline';
   description={entry.data.description}
   locale={locale}
   headings={headings}
-  toc={entry.data.toc ?? (headings.length > 0 ? 'side' : false)}
+  toc={entry.data.toc ?? (headings.length > 0 ? siteConfig.ui.toc.position : false)}
   comments={entry.data.comments}
 >
   <PageHeader

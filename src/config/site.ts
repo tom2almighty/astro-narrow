@@ -29,6 +29,10 @@ export const siteConfig = {
       enabled: true
     },
     toc: {
+      // Default placement: 'center' is the capsule under the header, 'side' the
+      // segmented spine in the gutter. A per-entry frontmatter
+      // `toc: center | side | true | false` overrides it.
+      position: 'center',
       // Side TOC pinned open on first visit. `ASTRO_TOC_PIN` overrides it at
       // build time; either way a visitor's own pin toggle wins from then on.
       defaultPin: false
@@ -116,6 +120,7 @@ export const siteConfig = {
       enabled: boolean;
     };
     toc: {
+      position: 'center' | 'side';
       defaultPin: boolean;
     };
   };
