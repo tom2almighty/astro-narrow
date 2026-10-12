@@ -2,6 +2,7 @@
   "name": "astro-narrow",
   "type": "module",
   "version": "0.0.1",
+  "packageManager": "bun@1.4.3",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -9,8 +10,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "astro": "astro"
   },
   "dependencies": {
@@ -34,9 +35,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "prettier": "^3.9.6",
-    "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-tailwindcss": "^0.8.1",
+    "@biomejs/biome": "^2.5.15",
     "typescript": "^6.0.3"
   }
 }

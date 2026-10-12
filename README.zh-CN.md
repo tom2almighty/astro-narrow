@@ -18,10 +18,10 @@
 ## 快速开始
 
 ```sh
-pnpm install
-pnpm dev
-pnpm build
-pnpm astro check
+bun install
+bun dev
+bun run build
+bun astro check
 ```
 
 ## 主要配置文件

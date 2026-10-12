@@ -37,8 +37,7 @@ jobs:
       - name: Build and upload
         uses: withastro/action@v6
         with:
-          package-manager: pnpm@11.6.0
-
+          package-manager: bun@1.4.3
   deploy:
     needs: build
     runs-on: ubuntu-latest
