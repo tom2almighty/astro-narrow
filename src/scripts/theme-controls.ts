@@ -2,6 +2,7 @@ import {
   defaultScheme,
   defaultTheme,
   inkSeed,
+  seedLimits,
   seedPresets,
   type SeedRecipe
 } from '../config/theme';
@@ -83,11 +84,19 @@ function currentSeed(): SeedRecipe {
 }
 
 function syncSeedControls(seed: SeedRecipe) {
-  const hue = document.querySelector<HTMLInputElement>('[data-seed-h]');
-  const chroma = document.querySelector<HTMLInputElement>('[data-seed-c]');
+  // Wheel thumb: hue is the clockwise angle from 3 o'clock (matching the
+  // conic-gradient in global.css), chroma the distance from center.
+  const wheel = document.querySelector<HTMLElement>('[data-seed-wheel]');
+  if (wheel) {
+    const angle = (seed.h * Math.PI) / 180;
+    const radius = Math.min(seed.c / seedLimits.chroma.max, 1) * 50;
+    wheel.style.setProperty('--wheel-x', `${50 + radius * Math.cos(angle)}%`);
+    wheel.style.setProperty('--wheel-y', `${50 + radius * Math.sin(angle)}%`);
+    wheel.setAttribute('aria-valuenow', String(Math.round(seed.h)));
+    wheel.setAttribute('aria-valuetext', `${Math.round(seed.h)}° ${seed.c.toFixed(2)}`);
+  }
+
   const lightness = document.querySelector<HTMLInputElement>('[data-seed-l]');
-  if (hue) hue.value = String(seed.h);
-  if (chroma) chroma.value = String(seed.c);
   if (lightness) lightness.value = String(seed.l);
 
   const outputs = {
@@ -170,16 +179,9 @@ function setPanel(panel: HTMLElement | null, button: HTMLElement | null, open: b
 document.addEventListener('input', (event) => {
   const target = event.target as HTMLElement;
 
-  const seedInput = target.closest<HTMLInputElement>('[data-seed-h], [data-seed-c], [data-seed-l]');
+  const seedInput = target.closest<HTMLInputElement>('[data-seed-l]');
   if (seedInput) {
-    const hue = document.querySelector<HTMLInputElement>('[data-seed-h]');
-    const chroma = document.querySelector<HTMLInputElement>('[data-seed-c]');
-    const lightness = document.querySelector<HTMLInputElement>('[data-seed-l]');
-    const seed = {
-      h: Number(hue?.value ?? inkSeed.h),
-      c: Number(chroma?.value ?? inkSeed.c),
-      l: Number(lightness?.value ?? inkSeed.l)
-    };
+    const seed = { ...currentSeed(), l: Number(seedInput.value) };
     writeStoredSeed(seed);
     applySeed(seed);
     syncSeedControls(seed);
@@ -198,6 +200,42 @@ document.addEventListener('input', (event) => {
     localStorage.setItem(GRAIN_KEY, grainInput.value);
     root.style.setProperty('--grain', String(Number(grainInput.value) / 100));
   }
+});
+/* Seed wheel: angle = hue (clockwise from 3 o'clock), radius = chroma. */
+
+function setSeed(seed: SeedRecipe) {
+  writeStoredSeed(seed);
+  applySeed(seed);
+  syncSeedControls(seed);
+}
+
+function seedFromWheelPoint(wheel: HTMLElement, clientX: number, clientY: number): SeedRecipe {
+  const rect = wheel.getBoundingClientRect();
+  const dx = clientX - (rect.left + rect.width / 2);
+  const dy = clientY - (rect.top + rect.height / 2);
+  const h = Math.round(((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360);
+  const c = Math.min(Math.hypot(dx, dy) / (rect.width / 2), 1) * seedLimits.chroma.max;
+  return { ...currentSeed(), h, c: Math.round(c * 100) / 100 };
+}
+
+document.addEventListener('pointerdown', (event) => {
+  const wheel = (event.target as HTMLElement).closest<HTMLElement>('[data-seed-wheel]');
+  if (!wheel) return;
+  event.preventDefault();
+  wheel.focus();
+  wheel.setPointerCapture(event.pointerId);
+  setSeed(seedFromWheelPoint(wheel, event.clientX, event.clientY));
+
+  const move = (moveEvent: PointerEvent) =>
+    setSeed(seedFromWheelPoint(wheel, moveEvent.clientX, moveEvent.clientY));
+  const stop = () => {
+    wheel.removeEventListener('pointermove', move);
+    wheel.removeEventListener('pointerup', stop);
+    wheel.removeEventListener('pointercancel', stop);
+  };
+  wheel.addEventListener('pointermove', move);
+  wheel.addEventListener('pointerup', stop);
+  wheel.addEventListener('pointercancel', stop);
 });
 
 document.addEventListener('click', (event) => {
@@ -274,6 +312,20 @@ document.addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+  // Keyboard access for the seed wheel: ←/→ hue, ↑/↓ chroma.
+  const wheel = (event.target as HTMLElement | null)?.closest?.<HTMLElement>('[data-seed-wheel]');
+  if (wheel && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+    event.preventDefault();
+    const seed = { ...currentSeed() };
+    if (event.key === 'ArrowLeft') seed.h = (seed.h + 355) % 360;
+    if (event.key === 'ArrowRight') seed.h = (seed.h + 5) % 360;
+    if (event.key === 'ArrowUp')
+      seed.c = Math.min(Math.round((seed.c + 0.02) * 100) / 100, seedLimits.chroma.max);
+    if (event.key === 'ArrowDown') seed.c = Math.max(Math.round((seed.c - 0.02) * 100) / 100, 0);
+    setSeed(seed);
+    return;
+  }
+
   if (event.key !== 'Escape') return;
   setPanel(
     document.querySelector('[data-display-panel]'),

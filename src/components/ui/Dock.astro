@@ -24,6 +24,7 @@ const labels = {
   seedChroma: t('dock.seedChroma'),
   seedHue: t('dock.seedHue'),
   seedLightness: t('dock.seedLightness'),
+  seedWheel: t('dock.seedWheel'),
   theme: t('nav.theme'),
   colorMode: t('nav.colorMode'),
   top: t('dock.top')
@@ -141,49 +142,29 @@ const maximumContentWidth = Math.ceil(defaultContentWidth + 24);
             }
           </div>
           <div class="space-y-2">
-            <div class="flex items-center gap-2">
-              <label for="seed-hue" class="w-14 shrink-0 text-xs font-medium text-fg-muted"
-                >{labels.seedHue}</label
+            <div class="flex items-center gap-4">
+              <div
+                data-seed-wheel
+                class="seed-wheel h-32 w-32 shrink-0"
+                tabindex="0"
+                role="slider"
+                aria-label={labels.seedWheel}
+                aria-valuemin={seedLimits.hue.min}
+                aria-valuemax={seedLimits.hue.max}
+                aria-valuenow={Math.round(inkSeed.h)}
               >
-              <input
-                id="seed-hue"
-                data-seed-h
-                type="range"
-                min={seedLimits.hue.min}
-                max={seedLimits.hue.max}
-                step="1"
-                value={inkSeed.h}
-                class="seed-slider min-w-0 flex-1"
-                aria-label={labels.seedHue}
-              />
-              <output
-                data-seed-h-output
-                for="seed-hue"
-                class="w-12 shrink-0 text-right text-xs text-fg-muted tabular-nums"
-                >{Math.round(inkSeed.h)}°</output
-              >
-            </div>
-            <div class="flex items-center gap-2">
-              <label for="seed-chroma" class="w-14 shrink-0 text-xs font-medium text-fg-muted"
-                >{labels.seedChroma}</label
-              >
-              <input
-                id="seed-chroma"
-                data-seed-c
-                type="range"
-                min={seedLimits.chroma.min}
-                max={seedLimits.chroma.max}
-                step="0.01"
-                value={inkSeed.c}
-                class="seed-slider min-w-0 flex-1"
-                aria-label={labels.seedChroma}
-              />
-              <output
-                data-seed-c-output
-                for="seed-chroma"
-                class="w-12 shrink-0 text-right text-xs text-fg-muted tabular-nums"
-                >{inkSeed.c.toFixed(2)}</output
-              >
+                <span class="seed-wheel-thumb" aria-hidden="true"></span>
+              </div>
+              <div class="flex min-w-0 flex-1 flex-col gap-1.5 text-xs text-fg-muted">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-medium">{labels.seedHue}</span>
+                  <output data-seed-h-output class="tabular-nums">{Math.round(inkSeed.h)}°</output>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-medium">{labels.seedChroma}</span>
+                  <output data-seed-c-output class="tabular-nums">{inkSeed.c.toFixed(2)}</output>
+                </div>
+              </div>
             </div>
             <div class="flex items-center gap-2">
               <label for="seed-lightness" class="w-14 shrink-0 text-xs font-medium text-fg-muted"

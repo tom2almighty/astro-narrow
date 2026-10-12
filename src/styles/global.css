@@ -135,30 +135,53 @@ body::after {
   outline-offset: 2px;
 }
 
-/* Hue track: a rainbow at the current lightness and a representative chroma. */
-[data-seed-h] {
-  background: linear-gradient(
-    to right,
-    oklch(var(--seed-l) var(--seed-c-display) 0),
-    oklch(var(--seed-l) var(--seed-c-display) 40),
-    oklch(var(--seed-l) var(--seed-c-display) 80),
-    oklch(var(--seed-l) var(--seed-c-display) 120),
-    oklch(var(--seed-l) var(--seed-c-display) 160),
-    oklch(var(--seed-l) var(--seed-c-display) 200),
-    oklch(var(--seed-l) var(--seed-c-display) 240),
-    oklch(var(--seed-l) var(--seed-c-display) 280),
-    oklch(var(--seed-l) var(--seed-c-display) 320),
-    oklch(var(--seed-l) var(--seed-c-display) 360)
-  );
+/*
+ * Seed wheel (Zen-style): angle = hue, distance from center = chroma, painted
+ * from the live `--seed-*` channels so it tracks the lightness slider. The
+ * conic rainbow starts at 3 o'clock going clockwise, matching atan2() with
+ * screen-down y in theme-controls.ts. The radial grey-to-transparent overlay
+ * fades chroma toward the center.
+ */
+.seed-wheel {
+  position: relative;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  touch-action: none;
+  background:
+    radial-gradient(circle closest-side, oklch(var(--seed-l) 0 var(--seed-h)), transparent),
+    conic-gradient(
+      from 90deg in oklch,
+      oklch(var(--seed-l) var(--picker-chroma-max) 0),
+      oklch(var(--seed-l) var(--picker-chroma-max) 40),
+      oklch(var(--seed-l) var(--picker-chroma-max) 80),
+      oklch(var(--seed-l) var(--picker-chroma-max) 120),
+      oklch(var(--seed-l) var(--picker-chroma-max) 160),
+      oklch(var(--seed-l) var(--picker-chroma-max) 200),
+      oklch(var(--seed-l) var(--picker-chroma-max) 240),
+      oklch(var(--seed-l) var(--picker-chroma-max) 280),
+      oklch(var(--seed-l) var(--picker-chroma-max) 320),
+      oklch(var(--seed-l) var(--picker-chroma-max) 360)
+    );
 }
 
-/* Chroma track: neutral → full chroma at the current lightness and hue. */
-[data-seed-c] {
-  background: linear-gradient(
-    to right,
-    oklch(var(--seed-l) 0 var(--seed-h)),
-    oklch(var(--seed-l) var(--picker-chroma-max) var(--seed-h))
-  );
+.seed-wheel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.seed-wheel-thumb {
+  position: absolute;
+  left: var(--wheel-x, 50%);
+  top: var(--wheel-y, 50%);
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  border: 2px solid var(--canvas);
+  background: var(--seed);
+  box-shadow: 0 0 0 1px var(--border-strong);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 /* Lightness track: black → current color → white. */
@@ -170,7 +193,6 @@ body::after {
     oklch(var(--picker-lightness-max) 0 var(--seed-h))
   );
 }
-
 /*
  * Floating layers (navbar, dock, dropdowns, capsule, search) share one
  * treatment: translucent canvas over a blur — the same paper as the page.
