@@ -10,10 +10,10 @@ pnpm dev            # dev server
 pnpm build          # static build to dist/
 pnpm preview        # serve the build
 pnpm astro check    # type-check (.astro + .ts) — the closest thing to a test suite; run before committing
-pnpm format         # Prettier --write (prettier-plugin-astro + tailwindcss class sorting); format:check to verify
+pnpm format         # Biome format --write (Astro + CSS; 2-space indent, width 100, single quotes, no trailing commas); format:check to verify
 ```
 
-There is no lint or unit-test setup. Formatting is Prettier (`.prettierrc.mjs`, options mirror the pre-existing style); `src/content/` is deliberately excluded (`.prettierignore`) so Markdown directives/KaTeX in entries stay untouched. `ASTRO_SITE` / `ASTRO_BASE` env vars set `site`/`base` at build time (used by the GitHub Pages workflow in `.github/workflows/deploy.yml`); `ASTRO_TOC_PIN` (`1|true|yes|on` / `0|false|no|off`) overrides `siteConfig.ui.toc.defaultPin`, the side TOC's initial pinned state.
+There is no lint or unit-test setup. Formatting is Biome (`biome.json`, options mirror the pre-existing Prettier style; `vcs.useIgnoreFile` makes it honour `.gitignore`); `src/content/` is deliberately excluded (`files.includes`) so Markdown directives/KaTeX in entries stay untouched, and `dist/`, `.astro/`, `public/` and `pnpm-lock.yaml` are excluded the same way. `ASTRO_SITE` / `ASTRO_BASE` env vars set `site`/`base` at build time (used by the GitHub Pages workflow in `.github/workflows/deploy.yml`); `ASTRO_TOC_PIN` (`1|true|yes|on` / `0|false|no|off`) overrides `siteConfig.ui.toc.defaultPin`, the side TOC's initial pinned state.
 
 ## What this is
 

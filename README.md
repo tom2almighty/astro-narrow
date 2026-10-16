@@ -18,10 +18,10 @@ A content-focused Astro theme: one narrow reading column, a sitewide palette rea
 ## Quick Start
 
 ```sh
-bun install
-bun dev
-bun run build
-bun astro check
+pnpm install
+pnpm dev
+pnpm build
+pnpm astro check
 ```
 
 ## Main Config Files

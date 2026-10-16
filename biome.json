@@ -13,8 +13,6 @@
       "!.astro",
       "!**/.astro",
       "!pnpm-lock.yaml",
-      "!bun.lock",
-      "!bun.lockb",
       "!public",
       "!**/public",
       "!src/content"
